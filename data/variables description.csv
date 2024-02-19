@@ -1,0 +1,47 @@
+POST___TRAVEL,Łańcuchowa,2000,0,"Using the box below, please write a post about your travel – whether it was real or purely imagined.",Brak
+POST___ABORTION,Łańcuchowa,2000,0,"Imagine that your government has completely banned abortion in your country. Using the box below, please write a post about your thoughts and feelings regarding this matter.",Brak
+ADM,Numeryczna,8,2,,Brak
+RIV,Numeryczna,8,2,,Brak
+ID,Łańcuchowa,2000,0,Please enter your unique Prolific ID:,Brak
+CNI_check,Numeryczna,40,0,"People have all kinds of private thoughts about themselves. From person to person, these self-thoughts can vary quite a lot in content.",
+We are interested in the sort of self-thoughts you possess.,,,,,
+,,,,,
+"Below you will find a list of self-thoughts you may have. For each self-thought, please indicate whether you have this or a similar thought. Be as honest as possible. Remember, your responses are totally anonymous. - 15. In this questionnaire position, please mark 6 as the answer.",,,,,
+GCB_check_,Numeryczna,40,0,"10. In this questionnaire position, mark 'Probably not true' based on your assessment of the statements provided.","{1, Definitely not true}..."
+Progress,Numeryczna,40,2,Progress,Brak
+Finished,Numeryczna,40,0,Finished,"{0, False}..."
+Gender,Numeryczna,40,0,Gender: - Selected Choice,"{1, Male}..."
+Gender_3_TEXT,Łańcuchowa,2000,0,Gender: - Other: - Text,Brak
+Age,Łańcuchowa,2000,0,Age:,Brak
+Ethnic_background,Numeryczna,40,0,Ethnic background: - Selected Choice,"{1, White / Caucasian}..."
+Ethnic_background_8_TEXT,Łańcuchowa,2000,0,Ethnic background: - Other: - Text,Brak
+Location,Łańcuchowa,2000,0,Location (Country):,Brak
+Education,Numeryczna,40,0,Education: - Selected Choice,"{1, Master’s degree or above}..."
+Education_6_TEXT,Łańcuchowa,2000,0,Education: - Other: - Text,Brak
+Employment,Numeryczna,40,0,Employment: - Selected Choice,"{1, Full-time}..."
+Employment_7_TEXT,Łańcuchowa,2000,0,Employment: - Other: - Text,Brak
+Marital_status,Numeryczna,40,0,Marital status:,"{1, Married}..."
+Twitter,Numeryczna,40,0,Are you an  user of the X platform (Twitter: twitter.com)?,"{1, Yes}..."
+Other_portals_1,Numeryczna,40,0,Which social networking sites do you use?,
+You can choose multiple answers. - Selected Choice None,,,,,
+Other_portals_2,Numeryczna,40,0,Which social networking sites do you use?,"{1, Facebook}..."
+You can choose multiple answers. - Selected Choice Facebook,,,,,
+Other_portals_3,Numeryczna,40,0,Which social networking sites do you use?,
+You can choose multiple answers. - Selected Choice Instagram,,,,,
+Other_portals_4,Numeryczna,40,0,Which social networking sites do you use?,
+You can choose multiple answers. - Selected Choice TikTok,,,,,
+Other_portals_5,Numeryczna,40,0,Which social networking sites do you use?,
+You can choose multiple answers. - Selected Choice LinkedIn,,,,,
+Other_portals_6,Numeryczna,40,0,Which social networking sites do you use?,
+You can choose multiple answers. - Selected Choice Pinterest,,,,,
+Other_portals_7,Numeryczna,40,0,Which social networking sites do you use?,
+You can choose multiple answers. - Selected Choice Other:,,,,,
+Other_portals_7_TEXT,Łańcuchowa,2000,0,Which social networking sites do you use?,
+You can choose multiple answers. - Other: - Text,,,,,Brak
+CNI_MEAN,Numeryczna,8,2,,Brak
+FFNI___SSF_2_R,Numeryczna,8,2,,Brak
+FFNI_Antagonism,Numeryczna,8,2,,Brak
+FFNI_Neurotic,Numeryczna,8,2,,Brak
+FFNI_Agentic,Numeryczna,8,2,,Brak
+GCB_MEAN,Numeryczna,8,2,,Brak
+PUR_MEAN,Numeryczna,8,2,,
