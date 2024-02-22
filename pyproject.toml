@@ -1,0 +1,117 @@
+[tool.ruff]
+select = [
+    "E", # pycodestyle
+    "F", # pyflakes
+    "W", # 
+]
+
+exclude = [
+    # excluding by default
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+
+    # our own exclusions
+    "notebooks",
+    "venv",
+]
+
+ignore = ["E402"]
+line-length = 120
+
+[tool.isort]
+skip = [
+    "notebooks",
+    "venv",
+    ".venv",
+]
+
+# Sort imports alphabetically
+force_sort_within_sections=true
+lexicographical=true
+single_line_exclusions=['typing']
+order_by_type=false
+group_by_package=true
+
+# Make it compatible with black
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+# Set the line length
+line_length=120
+
+[tool.black]
+line-length = 120
+
+# force-exclude for the pre-commit hook
+force-exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | notebooks
+  | notebooks/stripped
+  | data
+  | .venv
+)/
+'''
+
+
+[tool.pytest]
+tmp_path_retention_policy = 'none'
+
+[tool.pytest.ini_options]
+markers = [
+  "long"
+]
+
+[tool.poetry]
+name = "narcissistic-twitter"
+version = "0.1.0"
+description = ""
+authors = ["Jan Piotrowski <janfpiotrowski@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.0"
+tqdm = "^4.66.2"
+spacy = "^3.7.4"
+ipython = "^8.22.1"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.3.1"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.3.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

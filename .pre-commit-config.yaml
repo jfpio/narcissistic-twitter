@@ -1,0 +1,31 @@
+repos:
+
+- repo: https://github.com/charliermarsh/ruff-pre-commit
+  rev: "v0.0.264" 
+  hooks:
+    - id: ruff
+      language: python
+      language_version: python3.11
+      args: [--fix, --exit-non-zero-on-fix]
+
+- repo: https://github.com/psf/black
+  rev: 23.3.0
+  hooks:
+    - id: black
+      language: python
+      language_version: python3.11
+
+- repo: https://github.com/pycqa/isort
+  rev: 5.12.0
+  hooks:
+    - id: isort
+      name: isort (python)
+      language: python
+      language_version: python3.11
+
+- repo: local
+  hooks:
+    - id: strip-notebooks
+      name: Strip notebooks
+      entry: ./.hooks/strip_notebooks.sh
+      language: script
