@@ -1,20 +1,30 @@
+"""
+# Exploratory Data Analysis
+This EDA focuses on the analysis of artificial Twitter comments connected to the narcissistic scale.
+"""
+
+"""
+## Load the data
+"""
+
 import numpy as np
 import pandas as pd
 
 # Charts
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
 
 # NLP
 import re
 import nltk
-from nltk import tokenize
 from nltk.corpus import stopwords
 
 from collections import Counter
 
 from sklearn.feature_extraction.text import CountVectorizer
+
+# Wordcloud
+from wordcloud import WordCloud
 
 
 # downaload the stopwords
@@ -22,87 +32,156 @@ nltk.download('popular')
 
 
 # Load the data
-# TODO: Check the pyreadstat library to read directly from .sav file 
-# Data path
-data_path = 'data/teach AI 12.12.23.csv'
-data = pd.read_csv(data_path, decimal=',')
+data_path = '../data/processed/processed_data.csv'
+data = pd.read_csv(data_path)
 data.head()
 
 
-# Analyze the data
-# Check the data types
-data.dtypes
+print(f"Total number of rows: {len(data)}")
 
 
-# List of not needed columns to drop:
-columns_to_drop = ['ID','CNI_check','GCB_check_',
-                   'Progress','Finished','Location']
-data.drop(columns=columns_to_drop, inplace=True)
-data.head()
-
-
-# Change the values #NULL! to np.nan
-data.replace('#NULL!', np.nan, inplace=True)
-data.head(2)
-
+"""
+## Analyze the data
+"""
 
 # Check the missing values
 data.isnull().sum()
 
 
-# Check the number of unique values of each column
+"""
+Most people use Facebook and Instagram. The other platforms are not used that much.
+"""
+
+# Check the number of unique values in each column
 data.nunique()
 
 
+"""
+The bonus text fields (ending with text) are mostly empty (the total number of rows is 185). 
+Apart from popular social media sites there are 13 other reported.
+"""
+
+"""
+### Narcistic scale
+"""
+
 # plot the box chart of ADM and RIV column
 plt.figure(figsize=(10, 6))
-sns.boxplot(data=data[['ADM', 'RIV']])
-plt.title('Box plot of ADM and RIV')
+sns.boxplot(data=data[['adm', 'riv']])
+plt.title('Box plot of Narcissistic Admiration (amd) and Narcissistic Rivalry (riv)')
 plt.show()
 
 
+"""
+The two most important values are AMD - Narcissistic Admiration and RIV - Narcissistic Rivalry. Both of them are on a scale from 1 to 6, where 6 correlated with the strongest narcotics traits. However, our data show the ADM from 1 to 5 with one value bigger than that and on an RIV scale is from 1 to 4 with 3 outliers. 
+"""
+
+# Bar graph of adm distribution
+plt.figure(figsize=(10, 6))
+sns.histplot(data['adm'], kde=True)
+plt.title('Narcissistic Admiration (amd) distribution')
+plt.show()
+
+
+# Bar graph of riv distribution
+plt.figure(figsize=(10, 6))
+sns.histplot(data['riv'], kde=True)
+plt.title('Narcissistic Rivalry (riv) distribution')
+plt.show()
+
+
+# Plot the difference between the two columns
+plt.figure(figsize=(10, 6))
+sns.histplot(data['adm'] - data['riv'], kde=True)
+plt.title('Difference between ADM and RIV')
+plt.show()
+
+
+"""
+People from our data have a tendency to score higger on AMD scale than on RIV 
+"""
+
+"""
+### Age and Gender distribution
+"""
+
 # Plot gender distribution
 plt.figure(figsize=(10, 6))
-plt.pie(data['Gender'].value_counts(),labels=['Female','Male','Other']
+plt.pie(data['gender'].value_counts(),labels=['Female','Male','Other']
         ,autopct='%.0f%%')
 plt.show()
 
 
+# Bar graph of the age distribution
+# Create brackets for the age
+age_brackets = ['<20', '20-29', '30-39', '40-49', '50-59', '60-69', '70+']
+data['age_brackets'] = pd.cut(data['age'], bins=[1, 20, 30, 40, 50, 60, 70, 100])
+plt.figure(figsize=(10, 6))
+sns.countplot(data['age_brackets'])
+plt.title('Age distribution')
+plt.show()
+
+
 """
-## Text analisis
+Most people are in the age group that normally use social media (both 20-30 and 30-40). 
+The older age groups are less likely to use social media on an everyday basis (especially 60+).
+That can explain the 17 people who don't use social media at all.
 """
 
-data['Length_abor'] = data['POST___ABORTION'].str.len()
-data['Length_trav'] = data['POST___TRAVEL'].str.len()
-data[['POST___ABORTION','POST___TRAVEL','Length_abor','Length_trav']].head(5)
+"""
+### Social media
+"""
+
+# plot of most popular other other_portals_7_text
+# create a dictionary of row count in other_portals_7_text
+other_portals_7_text = data['other_portals_7_text'].dropna()
+# change the text to lowercase
+other_portals_7_text = other_portals_7_text.str.lower()
+# comma-separated text to list
+other_portals_7_text = other_portals_7_text.str.split(',').explode()
+# remove the punctuation ' and spaces
+other_portals_7_text = other_portals_7_text.str.replace("'", "")
+# remove the spaces
+other_portals_7_text = other_portals_7_text.str.replace(" ", "")
+dict_other_portals_7_text = Counter(other_portals_7_text)
+# Create a word cloud
+wordcloud = WordCloud(width=800, height=400, background_color='white', collocations=False).generate_from_frequencies(dict_other_portals_7_text)
+plt.figure(figsize=(10, 6))
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis('off')
+plt.show()
 
 
-# word count function
+"""
+Some people marked X as just a new name for Twitter (and this was stated in the survey). Nextdoor is a social network for neighborhoods semi-popular in the US and UK. 
+Gab is a social media platform that is popular among the far-right. Mastodon is a federated social network. But all of these are only checked once in the survey. So there are
+not any other popular social media platforms that are not already included in the survey.
+"""
+
+"""
+# Twitter post analysis
+"""
+
+# Getting character lenght of the post_abortion and post_travel columns 
+data['length_abor'] = data['post_abortion'].str.len()
+data['length_trav'] = data['post_travel'].str.len()
+data[['post_abortion','post_travel','length_abor','length_trav']].head(5)
+
+
+# Word count function
 def word_count(text):
     words = text.split()
     return len(words)
 
 
-data['Word_count_abor'] = data['POST___ABORTION'].apply(word_count)
-data['Word_count_trav'] = data['POST___TRAVEL'].apply(word_count)
-data[['POST___ABORTION','POST___TRAVEL','Word_count_abor',
-      'Word_count_trav']].head(5)
+# Getting word count of the post_abortion and post_travel columns
+data['word_count_abor'] = data['post_abortion'].apply(word_count)
+data['word_count_trav'] = data['post_travel'].apply(word_count)
+data[['post_abortion','post_travel','word_count_abor',
+      'word_count_trav']].head(5)
 
 
-np.mean([len(sent) for sent in 
-         tokenize.sent_tokenize(data['POST___ABORTION'][0])])
-
-
-# mean sentence length lambda function
-data['Mean_sentence_length_abor'] = data['POST___ABORTION'].apply(
-    lambda x: np.mean([len(sent) for sent in tokenize.sent_tokenize(x)]))
-data['Mean_sentence_length_trav'] = data['POST___TRAVEL'].apply(
-    lambda x: np.mean([len(sent) for sent in tokenize.sent_tokenize(x)]))
-data[['POST___ABORTION','POST___TRAVEL',
-      'Mean_sentence_length_abor','Mean_sentence_length_trav']].head(5)
-
-
-# Plot two distributions with legend
+# Plot two distributions with the legend
 def visualize(col_ab, col_trav,title):
     plt.subplot(1,2,2)
     sns.kdeplot(data[col_ab], label='abortion')
@@ -111,25 +190,30 @@ def visualize(col_ab, col_trav,title):
     plt.title(title)
     plt.xlabel('')
     plt.ylabel('')
+    plt.show()
 
 
 # visualize the distributions of the word count and the mean sentence length
-visualize('Word_count_abor', 'Word_count_trav','Word count distribution')
-plt.show()
-visualize('Length_abor', 'Length_trav', 'Post length distribution')
-plt.show()
-visualize('Mean_sentence_length_abor', 
-          'Mean_sentence_length_trav', 'Mean sentence length distribution')
-plt.show()
+visualize('word_count_abor', 'word_count_trav','word count distribution')
+visualize('length_abor', 'length_trav', 'post length distribution')
 
 
-# TODO: Find twitter statistics for comparison
+print(f'Mean word count of the Abortion post: {data["word_count_abor"].mean() : .2f}')
+print(f'Mean word count of the Travel Post: {data["word_count_trav"].mean() : .2f}')
+print('')
+print(f'Mean character length of the Abortion post: {data["length_abor"].mean() : .2f}')
+print(f'Mean character length of the Travel Post: {data["length_trav"].mean() : .2f}')
 
+
+"""
+The mean word count and mean character length are similar, also the extremes of the plots are very similar. The travel post is on average a little bit longer. The maximum length is lower than 280 which is the current limit (was 140 characters before November 2017).
+"""
 
 """
 ## Term Frequency Analysis
 """
 
+# Clean the text
 def clean(review):
     review = review.lower()
     review = re.sub('[^a-z A-Z 0-9-]+', '', review)
@@ -138,30 +222,37 @@ def clean(review):
     return review
 
 
-data['POST___ABORTION'] = data['POST___ABORTION'].apply(clean)
-data['POST___TRAVEL'] = data['POST___TRAVEL'].apply(clean)
+data['post_abortion'] = data['post_abortion'].apply(clean)
+data['post_travel'] = data['post_travel'].apply(clean)
 data.head(2)
 
 
+# Create a corpus
 def corpus(text):
     text_list = text.split()
     return text_list
 
 
-data['POST___ABORTION_lists'] = data['POST___ABORTION'].apply(corpus)
-data['POST___TRAVEL_lists'] = data['POST___TRAVEL'].apply(corpus)
+data['post_abortion_lists'] = data['post_abortion'].apply(corpus)
+data['post_travel_lists'] = data['post_travel'].apply(corpus)
 data.head(2)
 
 
+# Count the number of words in the corpus
 corpus_ab = []
 corpus_tr = []
-for text in data['POST___ABORTION_lists']:
+for text in data['post_abortion_lists']:
     corpus_ab += text
-for text in data['POST___TRAVEL_lists']:
+for text in data['post_travel_lists']:
     corpus_tr += text
 print(f"Abortion total words:\t{len(corpus_ab)} \nTravel total words:\t{len(corpus_tr)}")
 
 
+"""
+### Most common words
+"""
+
+# Most common words
 mostCommon_ab = Counter(corpus_ab).most_common(10)
 mostCommon_tr = Counter(corpus_tr).most_common(10)
 
@@ -176,6 +267,11 @@ plt.title('Top 10 Most Frequently Occuring Words in Travel Posts')
 plt.show()
 
 
+"""
+In the top 10 most common words in Travel post, we have some travel related words (travel, place, trip) and some positively emotional words (amazing, beautiful, 
+great)
+"""
+
 words = []
 freq = []
 for word, count in mostCommon_ab:
@@ -183,9 +279,14 @@ for word, count in mostCommon_ab:
     freq.append(count)
 
 sns.barplot(x=freq, y=words)
-plt.title('Top 10 Most Frequently Occuring Words in Travel Posts')
+plt.title('Top 10 Most Frequently Occuring Words in Abortion Posts')
 plt.show()
 
+
+"""
+In the abortion post the keyword is much more present (abortion - over 90 hits). This (with the other 5 top words) shows that in these emotional topics the vocabulary 
+is limited.
+"""
 
 def bigram_freq(column):
     cv = CountVectorizer(ngram_range=(2,2))
@@ -198,32 +299,66 @@ def bigram_freq(column):
     return bigram_freq
 
 
+"""
+### Most common bigrams
+"""
+
 cv = CountVectorizer(ngram_range=(2,2))
-bigrams_ab_freq = bigram_freq(data['POST___ABORTION'])
-bigrams_tr_freq = bigram_freq(data['POST___TRAVEL'])
+bigrams_ab_freq = bigram_freq(data['post_abortion'])
+bigrams_tr_freq = bigram_freq(data['post_travel'])
 
 sns.barplot(x=bigrams_tr_freq['frequency'][:10], 
             y=bigrams_tr_freq['bigram'][:10])
-plt.title('Top 10 Most Frequently Occuring Bigrams Travel Posts')
+plt.title('Top 10 most frequently occuring bigrams in Travel Posts')
 plt.show()
 
 sns.barplot(x=bigrams_ab_freq['frequency'][:10], 
             y=bigrams_ab_freq['bigram'][:10])
-plt.title('Top 10 Most Frequently Occuring Bigrams Abbortion Posts')
+plt.title('Top 10 most frequently occuring bigrams in Abortion Posts')
 plt.show()
 
 
-columns_for_corr_1 = ['ADM', 'RIV', 'Length_abor', 'Length_trav', 'Word_count_abor', 'Word_count_trav', 'Mean_sentence_length_abor', 'Mean_sentence_length_trav']
-columns_for_corr_2 = ['ADM', 'RIV','Gender','Age', 'Education', 'Marital_status','Employment','Twitter']
+"""
+In bigrams it is clearly seen that bigram of abortion and banning (ban abortion, banning abortion, banned abortion, abortion banned) is the most popular giving in total 43 occurrences. Also top 10 Abortion biagrams are on average more popular. In travel posts there is a focus connected to a good time spent (amazing time, great time, best time and also next year and can't wait).
+"""
+
+"""
+## Correlation Matrix
+"""
+
+columns_for_corr_1 = ['adm', 'riv', 'length_abor', 'length_trav', 'word_count_abor', 'word_count_trav']
+columns_for_corr_2 = ['adm', 'riv','gender','age', 'education', 'marital_status','employment','ethnic_background']
 
 
 sns.heatmap(data[columns_for_corr_1].corr(), annot=True)
 plt.show()
 
 
+"""
+There is a standard correlation between word count and the length of a post. There is also a strong correlation between the length of one post with the length of the second post. The Narcisstic Admiration and Narcissitic Rivarry traits are also correlated. In the terms of length of a post and the Narcissistic traits there isn't any strong correlation. The interesting thing however is that ADM is weakly positively correlating and the RIV is rather very weakly negatively correlating.
+"""
+
+plt.figure(figsize=(8, 5))
 sns.heatmap(data[columns_for_corr_2].corr(), annot=True)
 plt.show()
 
 
+"""
+In this correlation matrix, we mostly don't see any correlation between narcism and other labels - which can be a good sight that means that our data is rather general. 
+The weird thing is a correlation between ethnic background and ADM. It may come from small samples in some ethnic groups. The correlations between employment and education or marital status and age are common signs. There is also a small negative correlation between gender and narcissism (in this data men have higher scores of both ADM and RIV). Also, there is a correlation between younger people and ADM narcissism.
+"""
 
+"""
+## Summary
+"""
+
+"""
+The data (total 185 observations) represents a good range of Narcissistic Admiration. The Narcissistic Rivalry scores are a little bit lower, but still most observations are between 1 and 4 (on a scale of 1 to 6). The data is exaly divided by gender and most participants are between 20 and 50 years old - which is our target group of people using X (former Twitter). The post length is a plausible in case of Twitter with mean length of 107 characters (15-16 words) for both types of posts.
+
+
+The emotional (abortion) post has a more topic-focused vocabulary and a less diverse vocabulary than the normal (travel) post. This could generate some problems when making model more general. 
+
+
+In data there isn't a strong correlation between posts length and Narcissitics traits. That is also the case for Narcissism and demographics.
+"""
 
