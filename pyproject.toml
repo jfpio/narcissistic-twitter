@@ -110,6 +110,7 @@ seaborn = "^0.13.2"
 matplotlib = "^3.8.3"
 plotly = "^5.19.0"
 scikit-learn = "^1.4.1.post1"
+pyreadstat = "^1.2.6"
 
 
 [tool.poetry.group.test.dependencies]
