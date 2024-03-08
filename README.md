@@ -35,7 +35,7 @@ Contains various notebooks.
 ## Project setup
 
 ### Python environment
-Python version 3.10 is used. Using Poetry to set up the environment is the preferred option. 
+Using Poetry to set up the environment is the preferred option. 
 To start using Poetry, you can [install](https://python-poetry.org/docs/#installing-with-the-official-installer) it.
 
 If the Python version is mismatched one can use 

@@ -104,6 +104,13 @@ pandas = "^2.2.0"
 tqdm = "^4.66.2"
 spacy = "^3.7.4"
 ipython = "^8.22.1"
+numpy = "^1.26.4"
+nltk = "^3.8.1"
+seaborn = "^0.13.2"
+matplotlib = "^3.8.3"
+plotly = "^5.19.0"
+scikit-learn = "^1.4.1.post1"
+pyreadstat = "^1.2.6"
 
 
 [tool.poetry.group.test.dependencies]
