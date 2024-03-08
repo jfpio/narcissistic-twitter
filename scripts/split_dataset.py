@@ -37,8 +37,8 @@ def split_datasets(
 if __name__ == "__main__":
     split_datasets(
         "data/processed/processed_data.csv",
-        "data/processed/processed_data_train.csv",
-        "data/processed/processed_data_test.csv",
-        "data/processed/processed_data_validate.csv",
+        "data/split/train_data.csv",
+        "data/split/test_data.csv",
+        "data/split/validate_data.csv",
         random_state=47,
     )
