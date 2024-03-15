@@ -111,6 +111,9 @@ matplotlib = "^3.8.3"
 plotly = "^5.19.0"
 scikit-learn = "^1.4.1.post1"
 pyreadstat = "^1.2.6"
+torch = "^2.2.1"
+lightning = "^2.2.1"
+transformers = "^4.38.2"
 
 
 [tool.poetry.group.test.dependencies]
