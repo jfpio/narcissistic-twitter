@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import Dataset
 
 
@@ -24,6 +25,8 @@ class NarcissisticPostDataset(Dataset):
             return_attention_mask=True,
             return_tensors="pt",
         )
+
+        label = torch.tensor(label, dtype=torch.float)
 
         return {
             "input_ids": encoding["input_ids"].flatten(),

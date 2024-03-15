@@ -3,6 +3,7 @@ from typing import Any, Optional
 from lightning import LightningDataModule
 import pandas as pd
 from torch.utils.data import DataLoader
+from transformers import AutoTokenizer
 
 from lib.data.dataset import NarcissisticPostDataset
 
@@ -17,6 +18,7 @@ class NarcissisticPostsDataModule(LightningDataModule):
         post_category: str = "post_travel",
         label_category: str = "adm",
         tokenizer: Any = None,
+        max_token_len: int = 512,
         batch_size: int = 64,
         num_workers: int = 0,
         pin_memory: bool = False,
@@ -59,7 +61,8 @@ class NarcissisticPostsDataModule(LightningDataModule):
             test_df = pd.read_csv(self.hparams.data_dir + self.hparams.test_file)
 
             # Define tokenizer and max_token_len
-            tokenizer = self.tokenizer
+            tokenizer_name = self.hparams.tokenizer
+            tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
             max_token_len = self.hparams.max_token_len
 
             self.data_train = NarcissisticPostDataset(

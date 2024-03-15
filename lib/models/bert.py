@@ -7,60 +7,34 @@ from transformers import BertModel
 
 
 class NarcissisticPostBERTLitModule(LightningModule):
-    """Example of a `LightningModule` for MNIST classification.
-
-    A `LightningModule` implements 8 key methods:
-
-    ```python
-    def __init__(self):
-    # Define initialization code here.
-
-    def setup(self, stage):
-    # Things to setup before each stage, 'fit', 'validate', 'test', 'predict'.
-    # This hook is called on every process when using DDP.
-
-    def training_step(self, batch, batch_idx):
-    # The complete training step.
-
-    def validation_step(self, batch, batch_idx):
-    # The complete validation step.
-
-    def test_step(self, batch, batch_idx):
-    # The complete test step.
-
-    def predict_step(self, batch, batch_idx):
-    # The complete predict step.
-
-    def configure_optimizers(self):
-    # Define and configure optimizers and LR schedulers.
-    ```
-
-    Docs:
-        https://lightning.ai/docs/pytorch/latest/common/lightning_module.html
-    """
-
     def __init__(
         self,
         hg_bert_model_name: str,
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
-        compile: bool,
     ) -> None:
-        self.encoder = BertModel.from_pretrained(hg_bert_model_name)
-        self.classifier_head = torch.nn.Linear(self.encoder.config.hidden_size, 1)
+        super().__init__()
+        self.save_hyperparameters(logger=False)
 
-        for param in self.encoder.parameters():
-            param.requires_grad = False
+        self.encoder = None
+        self.classifier_head = None
 
         # for averaging loss across batches
         self.train_loss = MeanSquaredError()
         self.val_loss = MeanSquaredError()
         self.test_loss = MeanSquaredError()
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.encoder(x)
-        x = self.classifier_head(x)
-        return x
+    def forward(self, x: dict) -> torch.Tensor:
+        # Get the pooled output from BERT
+        input_ids = x["input_ids"]
+        attention_mask = x["attention_mask"]
+        outputs = self.encoder(input_ids=input_ids, attention_mask=attention_mask)
+        pooled_output = outputs.pooler_output
+
+        # Pass through the classification/regression head
+        logits = self.classifier_head(pooled_output)
+
+        return logits
 
     def on_train_start(self) -> None:
         """Lightning hook that is called when training begins."""
@@ -78,9 +52,14 @@ class NarcissisticPostBERTLitModule(LightningModule):
             - A tensor of predictions.
             - A tensor of target labels.
         """
-        x, y = batch
+        x = {
+            "input_ids": batch["input_ids"],
+            "attention_mask": batch["attention_mask"],
+        }
+        y = batch["labels"]
         preds = self(x)
-        loss = torch.nn.functional.mse_loss(preds, y)
+
+        loss = torch.nn.functional.mse_loss(preds.squeeze(), y)
         return loss, preds, y
 
     def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
@@ -94,7 +73,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         loss, preds, targets = self.model_step(batch)
 
         # update and log metrics
-        self.train_loss(loss)
+        self.train_loss(preds.squeeze(), targets)
         self.log("train/loss", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
 
         # return loss or backpropagation will fail
@@ -113,8 +92,8 @@ class NarcissisticPostBERTLitModule(LightningModule):
         """
         loss, preds, targets = self.model_step(batch)
 
-        # update and log metrics
-        self.val_loss(loss)
+        # update and log metrics, val loss is mean squared error
+        self.val_loss(preds.squeeze(), targets)
         self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_validation_epoch_end(self) -> None:
@@ -131,7 +110,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         loss, preds, targets = self.model_step(batch)
 
         # update and log metrics
-        self.test_loss(loss)
+        self.test_loss(preds.squeeze(), targets)
         self.log("test/loss", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_test_epoch_end(self) -> None:
@@ -147,8 +126,11 @@ class NarcissisticPostBERTLitModule(LightningModule):
 
         :param stage: Either `"fit"`, `"validate"`, `"test"`, or `"predict"`.
         """
-        if self.hparams.compile and stage == "fit":
-            self.net = torch.compile(self.net)
+        self.encoder = BertModel.from_pretrained(self.hparams.hg_bert_model_name)
+        self.classifier_head = torch.nn.Linear(self.encoder.config.hidden_size, 1)
+
+        for param in self.encoder.parameters():
+            param.requires_grad = False
 
     def configure_optimizers(self) -> Dict[str, Any]:
         """Choose what optimizers and learning-rate schedulers to use in your optimization.
