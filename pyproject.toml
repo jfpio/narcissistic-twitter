@@ -111,6 +111,12 @@ matplotlib = "^3.8.3"
 plotly = "^5.19.0"
 scikit-learn = "^1.4.1.post1"
 pyreadstat = "^1.2.6"
+langchain-core = "^0.1.32"
+langchain-community = "^0.0.28"
+langchain-openai = "^0.0.8"
+ipykernel = "^6.29.3"
+neptune = "^1.9.1"
+pyarrow = "^15.0.2"
 
 
 [tool.poetry.group.test.dependencies]
