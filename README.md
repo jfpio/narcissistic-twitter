@@ -4,33 +4,8 @@
 
 Create a model that can predict the narcissism of the person based on their tweets.
 
-### Project structure
-```
-├── configs
-├── lib
-├── notebooks
-├── scripts
-├── tests
-```
-
-### Lib
-**The main library of the project.** Contains the code for models, metrics, datasets, etc. 
-The library is divided into modules, each of which is responsible for a different part of the project, including:
-- `text_cleaners` - contains functions for cleaning text data, including lemmatization and removing URLs, emojis, etc. It is used by scripts for creating datasets.
-- `source_processing` - contains functions for matching tweets with articles based on various criteria and functions for loading articles and tweets from files as dataframes. It is used by scripts for creating datasets.
-- `google_api` - contains functions for using the Google API to save and download files from Google Drive.
-
-### Configs
-Contains configuration files for experiments. We use [Hydra](https://hydra.cc/docs/intro/) to manage them.
-
-### Tests
-Contains unit tests for the project, including tests for models, metrics, datasets, etc. Each model has its own test file, which contains a test class with tests for the model, which can be inherited from other test classes.
-
-### Scripts
-Contains the main scripts for training and testing models (in general python programs that you run).
-
-### Notebooks
-Contains various notebooks.
+## Train and test models
+The repository is inspired by [lightning-hydra-template](https://github.com/ashleve/lightning-hydra-template). To train a model one should `python train.py`. An experiment should be defined in `configs/experiments`, where one should make necessary overrides.
 
 ## Project setup
 
@@ -63,7 +38,7 @@ By default, running poetry lock without any options will update the lock file ba
 Poetry allows us to use groups with specific dependencies. As Poetry is super concise with its documentation, to modify, add or make optional one should refer [here](https://python-poetry.org/docs/master/managing-dependencies/).
 
 ### Environment file .env
-Create your environment file from template `.env_template`. Change its name to `.env` file and paste your credentials.
+Create your environment file from template `.env.example`. Change its name to `.env` file and paste your credentials.
 
 #### Twitter credentials
 Generate your bearer token [here](https://developer.twitter.com/en/portal/dashboard) and add it to your `.env` file.

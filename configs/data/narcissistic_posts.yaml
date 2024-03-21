@@ -1,0 +1,12 @@
+_target_: lib.data.datamodule.NarcissisticPostsDataModule
+data_dir: ${paths.data_dir}
+train_file: train.csv
+val_file: validate.csv
+test_file: test.csv
+post_category: post_travel
+label_category: adm
+tokenizer: "bert-base-uncased"
+batch_size: 16 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
+num_workers: 0
+pin_memory: False
+max_token_len: 512
