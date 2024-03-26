@@ -42,19 +42,7 @@ def process_raw_data(file_to_open: Union[str, Path], target_name: Union[str, Pat
     data.replace("", np.nan, inplace=True)
     data.replace("nan", np.nan, inplace=True)
 
-    # remove new line characters
-    data = data.replace("\n", " ", regex=True)
-    # remove double spaces
-    data.replace("  ", " ", regex=True)
-    # remove leading and trailing spaces
-    data = data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-
-    # Convert age to integer
     data["age"] = data["age"].astype(int)
-
-    # Make ADM and RIV have only 3 values after the decimal point
-    data["adm"] = data["adm"].round(3)
-    data["riv"] = data["riv"].round(3)
 
     data.to_csv(target_name, index=False)
 
