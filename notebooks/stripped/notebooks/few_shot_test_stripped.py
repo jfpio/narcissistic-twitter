@@ -11,6 +11,10 @@ import numpy as np
 import re
 import neptune
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 """
 # Example
@@ -64,11 +68,7 @@ for i in range(len(example)):
 example
 
 
-print(os.environ.get('OPENAI_API_KEY'))
-
-
-# TODO - Load the API key from the environment
-model = ChatOpenAI(model=model_used, openai_api_key="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")
+model = ChatOpenAI(model=model_used, openai_api_key=os.getenv('OPENAI_API_KEY'))
 
 
 # This is a prompt template used to format each example.
@@ -215,9 +215,8 @@ Add Neptune experiment observation
 """
 
 # Run the functions
-# TODO: Set API token in the environment variable
-run = neptune.init_run(project = "NarcisissticTwitter/Twitter",
-                       api_token = "eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJmYmEzZjU5ZS1kZDIzLTQwNTEtYjQ4Ni1hYTlhMTFjY2YzMjIifQ==")
+run = neptune.init_run(project = os.getenv('NEPTUNE_PROJECT'),
+                       api_token = os.getenv('NEPTUNE_API_TOKEN'))
 # TODO: Add logging of input posts (and responses?) to Neptune
 run["algorithm"] = "Few-shot learning"
 params = {
