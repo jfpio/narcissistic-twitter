@@ -1,0 +1,55 @@
+from abc import ABC, abstractmethod
+from pathlib import Path
+
+import numpy as np
+
+
+class BaseModel(ABC):
+    """
+    Abstract base class for machine learning models, using pathlib for file paths
+    and numpy arrays for all data handling, including inputs, targets, and predictions.
+    """
+
+    @abstractmethod
+    def train(self, X: np.ndarray, y: np.ndarray) -> None:
+        """
+        Trains the model on the provided data.
+
+        Parameters:
+            X (np.ndarray): The input data used for training, typically feature vectors.
+            y (np.ndarray): The target labels or values associated with the input data.
+        """
+        pass
+
+    @abstractmethod
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        Predicts the target for the given input data using the trained model.
+
+        Parameters:
+            X (np.ndarray): The input data for which predictions are to be made.
+
+        Returns:
+            np.ndarray: The predictions made by the model.
+        """
+        pass
+
+    @abstractmethod
+    def save(self, path: Path) -> None:
+        """
+        Saves the trained model to a specified path.
+
+        Parameters:
+            path (Path): The file path or storage location where the model should be saved.
+        """
+        pass
+
+    @abstractmethod
+    def load(self, path: Path) -> None:
+        """
+        Loads the model from the specified path.
+
+        Parameters:
+            path (Path): The file path or storage location from where the model should be loaded.
+        """
+        pass
