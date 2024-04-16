@@ -21,7 +21,7 @@ load_dotenv()
 """
 
 prompt = ChatPromptTemplate.from_template("tell me a short joke about {topic}")
-model = ChatOpenAI(model="gpt-3.5-turbo-1106", openai_api_key=os.getenv('OPENAI_API_KEY'))
+model = ChatOpenAI(model="gpt-3.5-turbo-0125", openai_api_key=os.getenv('OPENAI_API_KEY'))
 output_parser = StrOutputParser()
 
 chain = prompt | model | output_parser
@@ -35,7 +35,8 @@ chain.invoke({"topic": "bread"})
 
 post_type = 'post_travel' # 'post_travel' or 'post_abortion'
 narcism_type = 'adm' # 'riv' or 'adm'
-model_used = "gpt-4-1106-preview"
+# model chosen from https://platform.openai.com/docs/models/continuous-model-upgrades
+model_used = 'gpt-3.5-turbo-0125' # 'gpt-3.5-turbo-0125', 'gpt-4-1106-preview' or 'gpt-4-turbo-2024-04-09'
 iterations = 10
 number_of_shots = 5 # somewhere between 3 and 10
 model_role = "You are a psychologist and you are assessing a patient's Narcissism. The patient is talking about their recent travel. Return only float number between 1 and 6."
