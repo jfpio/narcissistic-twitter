@@ -1,6 +1,6 @@
 import pandas as pd
 
-from lib.datamodule.dataset import NarcissisticPostDataset
+from lib.datamodules.dataset import NarcissisticPostDataset
 
 
 class NarcissisticPostsSimpleDataModule:
