@@ -44,10 +44,14 @@ def process_raw_data(file_to_open: Union[str, Path], target_name: Union[str, Pat
 
     # remove new line characters
     data = data.replace("\n", " ", regex=True)
+
     # remove double spaces
-    data.replace("  ", " ", regex=True)
+    data["post_travel"] = data["post_travel"].str.replace("\\s\\s+", " ", regex=True)
+    data["post_abortion"] = data["post_abortion"].str.replace("\\s\\s+", " ", regex=True)
+
     # remove leading and trailing spaces
-    data = data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+    data["post_travel"] = data["post_travel"].str.strip()
+    data["post_abortion"] = data["post_abortion"].str.strip()
 
     # Convert age to integer
     data["age"] = data["age"].astype(int)
