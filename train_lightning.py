@@ -9,15 +9,10 @@ import rootutils
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
-from lib.utils import (
-    extras,
-    get_metric_value,
-    instantiate_callbacks,
-    instantiate_loggers,
-    log_hyperparameters,
-    RankedLogger,
-    task_wrapper,
-)
+from lib.utils.instantiators import instantiate_callbacks, instantiate_loggers
+from lib.utils.logging_utils import log_hyperparameters
+from lib.utils.pylogger import RankedLogger
+from lib.utils.utils import extras, get_metric_value, task_wrapper
 
 log = RankedLogger(__name__, rank_zero_only=True)
 
@@ -78,12 +73,15 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
             log.warning("Best ckpt not found! Using current weights for testing...")
             ckpt_path = None
         trainer.test(model=model, datamodule=datamodule, ckpt_path=ckpt_path)
+        second_category_metrics = trainer.test(
+            model=model, dataloaders=datamodule.test_second_category_dataloader(), ckpt_path=ckpt_path
+        )
+
         log.info(f"Best ckpt path: {ckpt_path}")
 
     test_metrics = trainer.callback_metrics
-
     # merge train and test metrics
-    metric_dict = {**train_metrics, **test_metrics}
+    metric_dict = {**train_metrics, **test_metrics, "test_second_category": second_category_metrics}
 
     return metric_dict, object_dict
 

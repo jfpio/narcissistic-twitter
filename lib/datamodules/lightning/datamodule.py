@@ -5,7 +5,7 @@ import pandas as pd
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 
-from lib.datamodule.lightning.dataset import NarcissisticPostDataset
+from lib.datamodules.lightning.dataset import NarcissisticPostDataset
 
 
 class NarcissisticPostsLightningDataModule(LightningDataModule):
@@ -17,6 +17,7 @@ class NarcissisticPostsLightningDataModule(LightningDataModule):
         test_file: str = "test.csv",
         post_category: str = "post_travel",
         label_category: str = "adm",
+        second_post_category: str = "post_abortion",
         tokenizer: Any = None,
         max_token_len: int = 512,
         batch_size: int = 64,
@@ -32,6 +33,7 @@ class NarcissisticPostsLightningDataModule(LightningDataModule):
         self.data_train = None
         self.data_val = None
         self.data_test = None
+        self.data_test_second_category = None
 
     def setup(self, stage: Optional[str] = None) -> None:
         """Load data. Set variables: `self.data_train`, `self.data_val`, `self.data_test`.
@@ -74,6 +76,13 @@ class NarcissisticPostsLightningDataModule(LightningDataModule):
                 test_df[self.hparams.post_category], test_df[self.hparams.label_category], tokenizer, max_token_len
             )
 
+            self.data_test_second_category = NarcissisticPostDataset(
+                test_df[self.hparams.second_post_category],
+                test_df[self.hparams.label_category],
+                tokenizer,
+                max_token_len,
+            )
+
     def train_dataloader(self) -> DataLoader[Any]:
         """Create and return the train dataloader.
 
@@ -107,6 +116,19 @@ class NarcissisticPostsLightningDataModule(LightningDataModule):
         """
         return DataLoader(
             dataset=self.data_test,
+            batch_size=self.batch_size_per_device,
+            num_workers=self.hparams.num_workers,
+            pin_memory=self.hparams.pin_memory,
+            shuffle=False,
+        )
+
+    def test_second_category_dataloader(self) -> DataLoader[Any]:
+        """Create and return the test dataloader for the second category.
+
+        :return: The test dataloader for the second category.
+        """
+        return DataLoader(
+            dataset=self.data_test_second_category,
             batch_size=self.batch_size_per_device,
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,

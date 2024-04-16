@@ -1,4 +1,4 @@
-_target_: lib.models.bert.NarcissisticPostBERTLitModule
+_target_: lib.models.lightning.bert.NarcissisticPostBERTLitModule
 
 optimizer:
   _target_: torch.optim.Adam

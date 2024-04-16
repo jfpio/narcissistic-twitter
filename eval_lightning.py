@@ -8,7 +8,10 @@ import rootutils
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
-from lib.utils import extras, instantiate_loggers, log_hyperparameters, RankedLogger, task_wrapper
+from lib.utils.instantiators import instantiate_loggers
+from lib.utils.logging_utils import log_hyperparameters
+from lib.utils.pylogger import RankedLogger
+from lib.utils.utils import extras, task_wrapper
 
 log = RankedLogger(__name__, rank_zero_only=True)
 

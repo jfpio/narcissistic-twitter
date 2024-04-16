@@ -5,3 +5,4 @@ val_file: validate.csv
 test_file: test.csv
 post_category: post_travel
 label_category: adm
+second_post_category: post_abortion

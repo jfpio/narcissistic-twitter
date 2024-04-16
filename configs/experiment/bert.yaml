@@ -4,7 +4,7 @@
 # python train.py experiment=example
 
 defaults:
-  - override /data: narcissistic_posts
+  - override /data: narcissistic_posts_lightning
   - override /model: bert
   - override /callbacks: default
   - override /trainer: default

@@ -8,7 +8,9 @@ import rootutils
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 from lib.datamodules.datamodule import NarcissisticPostsSimpleDataModule
 from lib.models.abstract_base import BaseModel
-from lib.utils import extras, get_metric_value, instantiate_loggers, RankedLogger, task_wrapper
+from lib.utils.instantiators import instantiate_loggers
+from lib.utils.pylogger import RankedLogger
+from lib.utils.utils import extras, get_metric_value, task_wrapper
 
 log = RankedLogger(__name__, rank_zero_only=True)
 
