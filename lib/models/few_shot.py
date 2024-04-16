@@ -4,6 +4,7 @@ import re
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 import numpy as np
+from sklearn.metrics import mean_squared_error
 
 from lib.models.abstract_base import BaseModel
 
@@ -33,6 +34,10 @@ class FewShotLearningModel(BaseModel):
 
         if self.final_prompt_template is None:
             raise Exception("Failed to create final prompt template")
+
+    def evaluate(self, y_true: np.ndarray, y_pred: np.ndarray) -> dict:
+        mse = mean_squared_error(y_true, y_pred)
+        return {"mse": mse}
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """

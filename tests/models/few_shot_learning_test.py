@@ -4,7 +4,7 @@ from langchain_openai import ChatOpenAI
 from numpy import array
 import pytest
 
-from lib.models.few_shot_learning import FewShotLearningModel
+from lib.models.few_shot import FewShotLearningModel
 
 
 @pytest.fixture
