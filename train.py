@@ -60,12 +60,16 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     if cfg.get("test"):
         log.info("Starting testing!")
         test_metrics = model.evaluate(model.predict(datamodule.data_train.posts), datamodule.data_train.labels)
+        test_metrics_second_category = model.evaluate(
+            model.predict(datamodule.data_test_second_category.posts), datamodule.data_test_second_category.labels
+        )
 
     log.info(f"Test metrics: {test_metrics}")
     metric_dict = {
         "train": train_metrics,
         "val": val_metrics,
         "test": test_metrics,
+        "test_second_category": test_metrics_second_category,
     }
 
     logger.log_metrics(metric_dict)

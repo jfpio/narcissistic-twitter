@@ -11,6 +11,7 @@ class NarcissisticPostsSimpleDataModule:
         val_file: str = "val.csv",
         test_file: str = "test.csv",
         post_category: str = "post_travel",
+        second_post_category: str = "post_abortion",
         label_category: str = "adm",
     ) -> None:
         self.data_train = None
@@ -22,6 +23,7 @@ class NarcissisticPostsSimpleDataModule:
         self.val_file = val_file
         self.test_file = test_file
         self.post_category = post_category
+        self.second_post_category = second_post_category
         self.label_category = label_category
 
         self.setup()
@@ -44,5 +46,10 @@ class NarcissisticPostsSimpleDataModule:
             )
             self.data_test = NarcissisticPostDataset(
                 test_df[self.post_category],
+                test_df[self.label_category],
+            )
+
+            self.data_test_second_category = NarcissisticPostDataset(
+                test_df[self.second_post_category],
                 test_df[self.label_category],
             )
