@@ -1,0 +1,7 @@
+_target_: lib.datamodules.datamodule.NarcissisticPostsSimpleDataModule
+data_dir: ${paths.data_dir}
+train_file: train.csv
+val_file: validate.csv
+test_file: test.csv
+post_category: post_travel
+label_category: adm
