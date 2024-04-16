@@ -5,7 +5,7 @@ import pandas as pd
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 
-from lib.data.dataset import NarcissisticPostDataset
+from lib.lightning.data.dataset import NarcissisticPostDataset
 
 
 class NarcissisticPostsDataModule(LightningDataModule):
