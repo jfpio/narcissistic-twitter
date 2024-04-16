@@ -10,7 +10,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 
-from lib.models.baseline_models import BaseModel
+from lib.models.abstract_base import BaseModel
 
 
 class BaselineMLModel(BaseModel):
@@ -54,14 +54,14 @@ class BaselineMLModel(BaseModel):
         pass
 
 
-class LinearRegressionModel(BaseModel):
+class LinearRegressionModel(BaselineMLModel):
     def __init__(self):
         self.model = Pipeline(
             [("vectorizer", CountVectorizer()), ("tfidf", TfidfTransformer()), ("regressor", LinearRegression())]
         )
 
 
-class MLPRegressorModel(BaseModel):
+class MLPRegressorModel(BaselineMLModel):
     def __init__(self, max_iter=1000):
         self.model = Pipeline(
             [
@@ -72,19 +72,19 @@ class MLPRegressorModel(BaseModel):
         )
 
 
-class SVRModel(BaseModel):
+class SVRModel(BaselineMLModel):
     def __init__(self):
         self.model = Pipeline([("vectorizer", CountVectorizer()), ("tfidf", TfidfTransformer()), ("svr", SVR())])
 
 
-class RandomForestRegressorModel(BaseModel):
+class RandomForestRegressorModel(BaselineMLModel):
     def __init__(self):
         self.model = Pipeline(
             [("vectorizer", CountVectorizer()), ("tfidf", TfidfTransformer()), ("rfr", RandomForestRegressor())]
         )
 
 
-class DecisionTreeRegressorModel(BaseModel):
+class DecisionTreeRegressorModel(BaselineMLModel):
     def __init__(self):
         self.model = Pipeline(
             [("vectorizer", CountVectorizer()), ("tfidf", TfidfTransformer()), ("dtr", DecisionTreeRegressor())]

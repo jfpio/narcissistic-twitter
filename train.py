@@ -35,7 +35,7 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     model: BaseModel = hydra.utils.instantiate(cfg.model)
 
     log.info("Instantiating loggers...")
-    logger = instantiate_loggers(cfg.get("logger"))
+    logger = instantiate_loggers(cfg.get("logger"))[0]
 
     object_dict = {
         "cfg": cfg,
@@ -49,17 +49,17 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 
     if cfg.get("train"):
         log.info("Starting training!")
-        model.train(datamodule.data_train)
+        model.train(datamodule.data_train.posts, datamodule.data_train.labels)
 
-    train_metrics = model.evaluate(datamodule.data_train)
-    val_metrics = model.evaluate(datamodule.data_val)
+    train_metrics = model.evaluate(model.predict(datamodule.data_train.posts), datamodule.data_train.labels)
+    val_metrics = model.evaluate(model.predict(datamodule.data_train.posts), datamodule.data_train.labels)
 
     log.info(f"Train metrics: {train_metrics}")
     log.info(f"Validation metrics: {val_metrics}")
 
     if cfg.get("test"):
         log.info("Starting testing!")
-        test_metrics = model.evaluate(datamodule.data_test)
+        test_metrics = model.evaluate(model.predict(datamodule.data_train.posts), datamodule.data_train.labels)
 
     log.info(f"Test metrics: {test_metrics}")
     metric_dict = {

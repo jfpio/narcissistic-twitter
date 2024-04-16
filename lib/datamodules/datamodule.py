@@ -24,6 +24,8 @@ class NarcissisticPostsSimpleDataModule:
         self.post_category = post_category
         self.label_category = label_category
 
+        self.setup()
+
     def setup(self) -> None:
         # load and split datasets only if not loaded already
         if not self.data_train and not self.data_val and not self.data_test:
@@ -33,14 +35,14 @@ class NarcissisticPostsSimpleDataModule:
             test_df = pd.read_csv(self.data_dir + self.test_file)
 
             self.data_train = NarcissisticPostDataset(
-                train_df[self.hparams.post_category],
-                train_df[self.hparams.label_category],
+                train_df[self.post_category],
+                train_df[self.label_category],
             )
             self.data_val = NarcissisticPostDataset(
-                val_df[self.hparams.post_category],
-                val_df[self.hparams.label_category],
+                val_df[self.post_category],
+                val_df[self.label_category],
             )
             self.data_test = NarcissisticPostDataset(
-                test_df[self.hparams.post_category],
-                test_df[self.hparams.label_category],
+                test_df[self.post_category],
+                test_df[self.label_category],
             )

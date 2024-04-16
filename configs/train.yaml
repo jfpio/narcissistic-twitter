@@ -5,7 +5,7 @@
 defaults:
   - _self_
   - data: narcissistic_posts_simple
-  - model: few_shot
+  - model: svr
   - callbacks: default
   - logger: neptune
   - trainer: default
