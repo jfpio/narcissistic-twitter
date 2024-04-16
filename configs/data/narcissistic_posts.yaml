@@ -1,4 +1,4 @@
-_target_: lib.data.datamodule.NarcissisticPostsDataModule
+_target_: lib.datamodule.lightning.NarcissisticPostsLightningDataModule
 data_dir: ${paths.data_dir}
 train_file: train.csv
 val_file: validate.csv

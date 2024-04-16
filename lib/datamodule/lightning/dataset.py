@@ -31,5 +31,5 @@ class NarcissisticPostDataset(Dataset):
         return {
             "input_ids": encoding["input_ids"].flatten(),
             "attention_mask": encoding["attention_mask"].flatten(),
-            "labels": label
+            "labels": label,
         }

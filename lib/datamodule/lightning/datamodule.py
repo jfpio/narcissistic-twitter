@@ -5,10 +5,10 @@ import pandas as pd
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 
-from lib.lightning.data.dataset import NarcissisticPostDataset
+from lib.datamodule.lightning.dataset import NarcissisticPostDataset
 
 
-class NarcissisticPostsDataModule(LightningDataModule):
+class NarcissisticPostsLightningDataModule(LightningDataModule):
     def __init__(
         self,
         data_dir: str = "data/",
@@ -32,7 +32,6 @@ class NarcissisticPostsDataModule(LightningDataModule):
         self.data_train = None
         self.data_val = None
         self.data_test = None
-
 
     def setup(self, stage: Optional[str] = None) -> None:
         """Load data. Set variables: `self.data_train`, `self.data_val`, `self.data_test`.
@@ -66,22 +65,13 @@ class NarcissisticPostsDataModule(LightningDataModule):
             max_token_len = self.hparams.max_token_len
 
             self.data_train = NarcissisticPostDataset(
-                train_df[self.hparams.post_category],
-                train_df[self.hparams.label_category],
-                tokenizer,
-                max_token_len
+                train_df[self.hparams.post_category], train_df[self.hparams.label_category], tokenizer, max_token_len
             )
             self.data_val = NarcissisticPostDataset(
-                val_df[self.hparams.post_category],
-                val_df[self.hparams.label_category],
-                tokenizer,
-                max_token_len
+                val_df[self.hparams.post_category], val_df[self.hparams.label_category], tokenizer, max_token_len
             )
             self.data_test = NarcissisticPostDataset(
-                test_df[self.hparams.post_category],
-                test_df[self.hparams.label_category],
-                tokenizer,
-                max_token_len
+                test_df[self.hparams.post_category], test_df[self.hparams.label_category], tokenizer, max_token_len
             )
 
     def train_dataloader(self) -> DataLoader[Any]:
@@ -123,5 +113,6 @@ class NarcissisticPostsDataModule(LightningDataModule):
             shuffle=False,
         )
 
+
 if __name__ == "__main__":
-    _ = NarcissisticPostsDataModule()
+    _ = NarcissisticPostsLightningDataModule()
