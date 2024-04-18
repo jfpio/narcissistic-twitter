@@ -5,7 +5,7 @@
 Create a model that can predict the narcissism of the person based on their tweets.
 
 ## Train and test models
-The repository is inspired by [lightning-hydra-template](https://github.com/ashleve/lightning-hydra-template). To train a model one should `python train.py`. An experiment should be defined in `configs/experiments`, where one should make necessary overrides.
+The repository is inspired by [lightning-hydra-template](https://github.com/ashleve/lightning-hydra-template). To train a model one should use `python train_lightning.py experiment=bert` (lightning models) or `train_lightning.py experiment=bert` (other models). An experiment should be defined in `configs/experiments`, where one should make necessary overrides.
 
 ## Project setup
 
