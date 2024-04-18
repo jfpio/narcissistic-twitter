@@ -1,0 +1,21 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /data: narcissistic_posts_simple
+  - override /model: few_shot
+  - override /callbacks: default
+  - override /trainer: default
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["few_shot", "choosing_best_prompt_on_val"]
+
+seed: 12345
+
+model:
+  number_of_shots: 5
+  model_role: You are a social media psychologist. You are reviewing a series of tweets from a user discussing their daily activities and interactions. Based on the tweets, assess the level of narcissism exhibited by the user, returning a float number between 1 and 6.
