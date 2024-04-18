@@ -54,14 +54,14 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         model.train(datamodule.data_train.posts, datamodule.data_train.labels)
 
     train_metrics = model.evaluate(model.predict(datamodule.data_train.posts), datamodule.data_train.labels)
-    val_metrics = model.evaluate(model.predict(datamodule.data_train.posts), datamodule.data_train.labels)
+    val_metrics = model.evaluate(model.predict(datamodule.data_val.posts), datamodule.data_val.labels)
 
     log.info(f"Train metrics: {train_metrics}")
     log.info(f"Validation metrics: {val_metrics}")
 
     if cfg.get("test"):
         log.info("Starting testing!")
-        test_metrics = model.evaluate(model.predict(datamodule.data_train.posts), datamodule.data_train.labels)
+        test_metrics = model.evaluate(model.predict(datamodule.data_test.posts), datamodule.data_test.labels)
         test_metrics_second_category = model.evaluate(
             model.predict(datamodule.data_test_second_category.posts), datamodule.data_test_second_category.labels
         )
