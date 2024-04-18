@@ -125,6 +125,7 @@ langchain-openai = "^0.0.8"
 ipykernel = "^6.29.3"
 pyarrow = "^15.0.2"
 python-dotenv = "^1.0.1"
+hydra-optuna-sweeper = "^1.2.0"
 
 
 [tool.poetry.group.test.dependencies]

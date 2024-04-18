@@ -5,7 +5,7 @@
 
 defaults:
   - override /data: narcissistic_posts_lightning
-  - override /model: bert
+  - override /model: lightning/bert
   - override /callbacks: default
   - override /trainer: default
 
@@ -24,6 +24,7 @@ trainer:
 model:
   optimizer:
     lr: 0.002
+    weight_decay: 0.0
   hg_bert_model_name: "bert-base-uncased"
 
 
