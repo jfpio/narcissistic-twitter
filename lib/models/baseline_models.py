@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
@@ -88,4 +88,11 @@ class DecisionTreeRegressorModel(BaselineMLModel):
     def __init__(self):
         self.model = Pipeline(
             [("vectorizer", CountVectorizer()), ("tfidf", TfidfTransformer()), ("dtr", DecisionTreeRegressor())]
+        )
+
+
+class GradientBoostingRegressorModel(BaselineMLModel):
+    def __init__(self):
+        self.model = Pipeline(
+            [("vectorizer", CountVectorizer()), ("tfidf", TfidfTransformer()), ("gbr", GradientBoostingRegressor())]
         )
