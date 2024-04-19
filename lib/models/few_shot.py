@@ -1,68 +1,68 @@
 from pathlib import Path
 import re
 
+from langchain_chroma import Chroma
+from langchain_core.example_selectors import SemanticSimilarityExampleSelector
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 import numpy as np
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 
-from lib.models.abstract_base import BaseModel
+from lib.models.abstract_base import AbstractBaseModel
+from lib.utils.pylogger import RankedLogger
+
+log = RankedLogger(__name__, rank_zero_only=True)
 
 
-class FewShotLearningModel(BaseModel):
+class FewShotLearningModel(AbstractBaseModel):
     def __init__(self, model_name: str, api_key: str, number_of_shots: int, model_role: str):
         self.model_name = model_name
-        self.api_key = api_key
         self.number_of_shots = number_of_shots
         self.model_role = model_role
-        self.chat_model = ChatOpenAI(model=self.model_name, openai_api_key=self.api_key)
-        self.final_prompt_template = None  # Placeholder for the prompt created during training
+        self.chat_model = ChatOpenAI(model=self.model_name, openai_api_key=api_key)
+        self.embeddings = OpenAIEmbeddings()
+
+        self.vectorstore = None
+        self.semantic_similarity_example_selector = None
 
     def train(self, X: np.ndarray, y: np.ndarray) -> None:
-        """
-        'Trains' the model by preparing the few-shot prompt using example data provided.
-        This step simulates training by setting up the model configuration for use during prediction.
+        examples = [{"post": x_example, "narcissism": str(y_example)} for x_example, y_example in zip(X, y)]
+        to_vectorize = [" ".join(example.values()) for example in examples]
 
-        Parameters:
-            X (np.ndarray): Array of posts as strings.
-            y (np.ndarray): Array of corresponding narcissism scores as floats.
-        """
-        if len(X) < self.number_of_shots:
-            raise ValueError("Not enough data provided for the number of requested shots.")
-        few_shot_prompt = self.create_few_shot_prompt(X[: self.number_of_shots], y[: self.number_of_shots])
-        self.final_prompt_template = self.create_final_prompt(few_shot_prompt)
+        self.vectorstore = Chroma.from_texts(to_vectorize, self.embeddings, metadatas=examples)
+        self.semantic_similarity_example_selector = SemanticSimilarityExampleSelector(
+            vectorstore=self.vectorstore, k=self.number_of_shots
+        )
 
-        if self.final_prompt_template is None:
-            raise Exception("Failed to create final prompt template")
+        few_shot_prompt = FewShotChatMessagePromptTemplate(
+            input_variables=["input"],
+            example_selector=self.semantic_similarity_example_selector,
+            example_prompt=ChatPromptTemplate.from_messages(
+                [
+                    ("human", "{post}"),
+                    ("ai", "narcissism: {narcissism}"),
+                ]
+            ),
+        )
+        self.final_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", self.model_role),
+                few_shot_prompt,
+                ("human", "{input}"),
+            ]
+        )
 
     def evaluate(self, y_true: np.ndarray, y_pred: np.ndarray) -> dict:
         mse = mean_squared_error(y_true, y_pred)
-        return {"mse": mse}
+        r2 = r2_score(y_true, y_pred)
+
+        return {"mse": mse, "r2_score": r2}
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """
-        Generates predictions by using the final prompt template and invoking the model.
-        Assumes that `train` has been called beforehand to set up the final prompt.
-        """
-        if self.final_prompt_template is None:
-            raise ValueError("Model has not been trained. Please call the train method before predicting.")
-
-        predictions = []
-        for input_text in X:
-            ai_message = self.chat_model.invoke({"input": self.final_prompt_template.format(input=input_text)})
-            response = self.extract_response(ai_message.content)
-            predictions.append(response)
-        return np.array(predictions)
-
-    def create_few_shot_prompt(
-        self, posts: np.ndarray, narcissism_scores: np.ndarray
-    ) -> FewShotChatMessagePromptTemplate:
-        examples = [{"post": post, "narcissism": score} for post, score in zip(posts, narcissism_scores)]
-        example_prompt = ChatPromptTemplate.from_messages([("human", "{post}"), ("ai", "narcissism: {narcissism}")])
-        return FewShotChatMessagePromptTemplate(example_prompt=example_prompt, examples=examples)
-
-    def create_final_prompt(self, few_shot_prompt: FewShotChatMessagePromptTemplate) -> ChatPromptTemplate:
-        return ChatPromptTemplate.from_messages([("system", self.model_role), few_shot_prompt, ("human", "{input}")])
+        chain = self.final_prompt | self.chat_model
+        y_messages = [chain.invoke({"input": x}) for x in X]
+        y_preds = [self.extract_response(y_message.content) for y_message in y_messages]
+        return np.array(y_preds)
 
     def extract_response(self, content: str) -> float:
         match = re.search(r"\d+\.\d+", content)
