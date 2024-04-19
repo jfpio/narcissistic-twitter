@@ -1,6 +1,7 @@
 from typing import Any, Dict, Tuple
 
 from lightning import LightningModule
+from sklearn.metrics import r2_score
 import torch
 from torchmetrics import MeanSquaredError
 from transformers import BertModel
@@ -114,12 +115,12 @@ class NarcissisticPostBERTLitModule(LightningModule):
         self.log("test/mse", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.log(
             "test/r2_score",
-            torch.nn.functional.r2_score(preds.squeeze(), targets),
+            r2_score(preds.squeeze().cpu(), targets.cpu()),
             on_step=False,
             on_epoch=True,
             prog_bar=True,
         )
-        self.log("root_mse", torch.sqrt(self.test_loss.compute()), on_step=False, on_epoch=True, prog_bar=True)
+        self.log("test/root_mse", torch.sqrt(self.test_loss.compute()), on_step=False, on_epoch=True, prog_bar=True)
 
     def on_test_epoch_end(self) -> None:
         """Lightning hook that is called when a test epoch ends."""
