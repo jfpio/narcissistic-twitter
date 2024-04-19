@@ -73,15 +73,13 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
             log.warning("Best ckpt not found! Using current weights for testing...")
             ckpt_path = None
         trainer.test(model=model, datamodule=datamodule, ckpt_path=ckpt_path)
-        second_category_metrics = trainer.test(
-            model=model, dataloaders=datamodule.test_second_category_dataloader(), ckpt_path=ckpt_path
-        )
 
-        log.info(f"Best ckpt path: {ckpt_path}")
+        if logger:
+            log.info(f"Best ckpt path: {ckpt_path}")
 
     test_metrics = trainer.callback_metrics
     # merge train and test metrics
-    metric_dict = {**train_metrics, **test_metrics, "test_second_category": second_category_metrics}
+    metric_dict = {**train_metrics, **test_metrics}
 
     return metric_dict, object_dict
 

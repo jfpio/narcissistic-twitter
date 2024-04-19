@@ -21,10 +21,10 @@ hydra:
 
     # storage URL to persist optimization results
     # for example, you can use SQLite if you set 'sqlite:///example.db'
-    storage: null
+    storage: sqlite:///example.db
 
     # name of the study to persist optimization results
-    study_name: null
+    study_name: bert
 
     # number of parallel workers
     n_jobs: 1
@@ -45,7 +45,6 @@ hydra:
 
     # define hyperparameter search space
     params:
-      trainer.min_epochs: 2
-      trainer.max_epochs: int(2, 10)
+      trainer.min_epochs: 1
       model.optimizer.lr: float(1e-6, 1e-2)
-      model.hg_bert_model_name: choice(bert-base-uncased, FacebookAI/xlm-roberta-base)
+      data.batch_size: int(2, 32)

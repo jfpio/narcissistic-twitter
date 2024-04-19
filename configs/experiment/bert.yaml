@@ -17,18 +17,19 @@ tags: ["bert"]
 seed: 12345
 
 trainer:
-  min_epochs: 10
-  max_epochs: 10
+  min_epochs: 1
+  max_epochs: 2
   gradient_clip_val: 0.5
 
 model:
   optimizer:
-    lr: 0.002
+    lr: 0.01
     weight_decay: 0.0
-  hg_bert_model_name: "bert-base-uncased"
+  hg_bert_model_name: "FacebookAI/xlm-roberta-base"
 
 
 data:
   batch_size: 16
-  tokenizer: "bert-base-uncased"
+  tokenizer: "FacebookAI/xlm-roberta-base"
 
+  # model.hg_bert_model_name: choice(bert-base-uncased, FacebookAI/xlm-roberta-base, FacebookAI/xlm-roberta-large)
