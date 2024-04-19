@@ -7,6 +7,15 @@ Create a model that can predict the narcissism of the person based on their twee
 ## Train and test models
 The repository is inspired by [lightning-hydra-template](https://github.com/ashleve/lightning-hydra-template). To train a model one should use `python train_lightning.py experiment=bert` (lightning models) or `train_lightning.py experiment=bert` (other models). An experiment should be defined in `configs/experiments`, where one should make necessary overrides.
 
+### Examples
+#### Multirun of baselines
+For example, one can evaluate all baselines with one command line.
+```sh
+python train.py experiment=baseline model=baselines/decision_tree,baselines/gradient_boosting,baselines/mlp,baselines/random_forest,baselines/svr seed=42,43,44,45,46 -m
+```
+
+
+
 ## Project setup
 
 ### Python environment
