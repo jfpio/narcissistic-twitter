@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 
 
-class BaseModel(ABC):
+class AbstractBaseModel(ABC):
     """
     Abstract base class for machine learning models, using pathlib for file paths
     and numpy arrays for all data handling, including inputs, targets, and predictions.

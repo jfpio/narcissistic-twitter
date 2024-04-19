@@ -4,16 +4,16 @@ import numpy as np
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.neural_network import MLPRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 
-from lib.models.abstract_base import BaseModel
+from lib.models.abstract_base import AbstractBaseModel
 
 
-class BaselineMLModel(BaseModel):
+class BaselineMLModel(AbstractBaseModel):
     def __init__(self, model_pipeline: Pipeline):
         """
         Initializes the BaselineMLModel with a specific Scikit-learn pipeline.
@@ -45,7 +45,10 @@ class BaselineMLModel(BaseModel):
         :return: A dictionary containing the 'mse' metric.
         """
         mse = mean_squared_error(y_true, y_pred)
-        return {"mse": mse}
+        r2 = r2_score(y_true, y_pred)
+        root_mse = np.sqrt(mse)
+
+        return {"mse": mse, "r2_score": r2, "root_mse": root_mse}
 
     def save(self, path: Path) -> None:
         pass

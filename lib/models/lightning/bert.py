@@ -112,6 +112,14 @@ class NarcissisticPostBERTLitModule(LightningModule):
         # update and log metrics
         self.test_loss(preds.squeeze(), targets)
         self.log("test/mse", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log(
+            "test/r2_score",
+            torch.nn.functional.r2_score(preds.squeeze(), targets),
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+        self.log("root_mse", torch.sqrt(self.test_loss.compute()), on_step=False, on_epoch=True, prog_bar=True)
 
     def on_test_epoch_end(self) -> None:
         """Lightning hook that is called when a test epoch ends."""

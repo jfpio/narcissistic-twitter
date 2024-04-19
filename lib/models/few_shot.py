@@ -55,8 +55,8 @@ class FewShotLearningModel(AbstractBaseModel):
     def evaluate(self, y_true: np.ndarray, y_pred: np.ndarray) -> dict:
         mse = mean_squared_error(y_true, y_pred)
         r2 = r2_score(y_true, y_pred)
-
-        return {"mse": mse, "r2_score": r2}
+        root_mse = np.sqrt(mse)
+        return {"mse": mse, "r2_score": r2, "root_mse": root_mse}
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         chain = self.final_prompt | self.chat_model
