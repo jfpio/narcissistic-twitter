@@ -14,7 +14,10 @@ For example, one can evaluate all baselines with one command line.
 python train.py experiment=baseline model=baselines/decision_tree,baselines/gradient_boosting,baselines/mlp,baselines/random_forest,baselines/svr seed=42,43,44,45,46 -m
 ```
 
-
+#### Few shot
+sh```
+python train.py -m experiment=few_shot_casual_conversation
+```
 
 ## Project setup
 
