@@ -53,8 +53,12 @@ class FewShotLearningModel(AbstractBaseModel):
         )
 
     def evaluate(self, y_true: np.ndarray, y_pred: np.ndarray) -> dict:
-        mse = mean_squared_error(y_true, y_pred)
-        r2 = r2_score(y_true, y_pred)
+        valid_indices = np.logical_and(~np.isnan(y_true), ~np.isnan(y_pred))
+        y_true_valid = y_true[valid_indices]
+        y_pred_valid = y_pred[valid_indices]
+
+        mse = mean_squared_error(y_true_valid, y_pred_valid)
+        r2 = r2_score(y_true_valid, y_pred_valid)
         root_mse = np.sqrt(mse)
         return {"mse": mse, "r2_score": r2, "root_mse": root_mse}
 
