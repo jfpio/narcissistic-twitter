@@ -113,9 +113,10 @@ class NarcissisticPostBERTLitModule(LightningModule):
         # update and log metrics
         self.test_loss(preds.squeeze(), targets)
         self.log("test/mse", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
+
         self.log(
             "test/r2_score",
-            r2_score(preds.squeeze().cpu(), targets.cpu()),
+            r2_score(targets.cpu(), preds.squeeze().cpu()),
             on_step=False,
             on_epoch=True,
             prog_bar=True,
