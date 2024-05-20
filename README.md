@@ -2,10 +2,10 @@
 
 ## Project goals
 
-Create a model that can predict the narcissism of the person based on their tweets.
+Create a model that can predict the narcissism of the person based on their tweets. The project uses data that distinguishes between two-factor Narcissism - Admiration (ADM) and Rivary (RIV). Each factor is calculated from the average of nine responses to statements about narcissism, to which the respondent answers on a scale of 1-6 (from strongly disagree to strongly agree).
 
 ## Train and test models
-The repository is inspired by [lightning-hydra-template](https://github.com/ashleve/lightning-hydra-template). To train a model one should use `python train_lightning.py experiment=bert` (lightning models) or `train_lightning.py experiment=bert` (other models). An experiment should be defined in `configs/experiments`, where one should make necessary overrides.
+The repository is inspired by [lightning-hydra-template](https://github.com/ashleve/lightning-hydra-template). To train a model one should use `python train_lightning.py experiment=bert` (lightning models) or `train.py experiment=baseline` (other models). An experiment should be defined in `configs/experiments`, where one should make necessary overrides.
 
 ### Examples
 #### Multirun of baselines
@@ -15,7 +15,7 @@ python train.py experiment=baseline model=baselines/decision_tree,baselines/grad
 ```
 
 #### Few shot
-sh```
+```sh
 python train.py -m experiment=few_shot_casual_conversation
 ```
 
