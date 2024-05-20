@@ -17,11 +17,5 @@ tags: ["few_shot", "choosing_best_prompt_on_val"]
 seed: 12345
 
 model:
-  number_of_shots: 5
-  model_role: You are a social media psychologist. You are reviewing a series of tweets from a user discussing their daily activities and interactions. Based on the tweets, assess the level of narcissism exhibited by the user, returning a float number between 1 and 6.
-
-
-data:
-  post_category: post_travel
-  label_category: riv
-  second_post_category: post_abortion
+  number_of_shots: 3
+  model_role: Based on the tweets, rate the level of narcissism exhibited by the user, returning a float number between 1 and 6.

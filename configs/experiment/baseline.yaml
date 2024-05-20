@@ -14,4 +14,11 @@ defaults:
 
 tags: ["baseline", "choosing_best_baseline_on_val"]
 
-seed: 12345
+seed: 72
+
+
+data:
+  post_category: post_abortion
+  label_category: adm
+  second_post_category: post_travel
+

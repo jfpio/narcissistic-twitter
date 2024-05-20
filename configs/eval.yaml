@@ -15,4 +15,10 @@ task_name: "eval"
 tags: ["bert", "eval"]
 
 # passing checkpoint path is necessary for evaluation
-ckpt_path: /Users/janpiotrowski/Projekty/narcissistic-twitter/.neptune/Untitled/TWIT-173/checkpoints/epoch=2-step=18.ckpt
+# ckpt_path: /Users/janpiotrowski/Projekty/narcissistic-twitter/.neptune/Untitled/TWIT-173/checkpoints/epoch=2-step=18.ckpt
+ckpt_path: /home/maciej/Desktop/narcissistic-twitter/.neptune/Untitled/TWIT-509/checkpoints/epoch=3-step=24.ckpt
+
+# data:
+#   post_category: post_abortion
+#   label_category: adm
+#   second_post_category: post_travel
