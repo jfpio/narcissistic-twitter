@@ -70,7 +70,7 @@ class FewShotLearningModel(AbstractBaseModel):
 
     def extract_response(self, content: str) -> float:
         match = re.search(r"\d+\.\d+", content)
-        return float(match.group()) if match else None
+        return float(match.group()) if match else np.nan
 
     def save(self, path: Path) -> None:
         # Implement if needed

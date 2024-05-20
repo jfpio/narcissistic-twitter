@@ -7,7 +7,7 @@ import rootutils
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 from lib.datamodules.datamodule import NarcissisticPostsSimpleDataModule
-from lib.models.abstract_base import BaseModel
+from lib.models.abstract_base import AbstractBaseModel
 from lib.utils.instantiators import instantiate_loggers
 from lib.utils.pylogger import RankedLogger
 from lib.utils.utils import extras, get_metric_value, task_wrapper
@@ -34,7 +34,7 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     datamodule: NarcissisticPostsSimpleDataModule = hydra.utils.instantiate(cfg.data)
 
     log.info(f"Instantiating model <{cfg.model._target_}>")
-    model: BaseModel = hydra.utils.instantiate(cfg.model)
+    model: AbstractBaseModel = hydra.utils.instantiate(cfg.model)
 
     log.info("Instantiating loggers...")
     logger = instantiate_loggers(cfg.get("logger"))[0]
