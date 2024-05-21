@@ -18,6 +18,11 @@ python train.py experiment=baseline model=baselines/decision_tree,baselines/grad
 ```sh
 python train.py -m experiment=few_shot_casual_conversation
 ```
+#### Bert Optuna
+Searching for best hyperparameters using optuna.
+```sh
+python python train_lightning.py experiment=bert hparams_search=bert_optuna
+```
 
 ## Project setup
 
