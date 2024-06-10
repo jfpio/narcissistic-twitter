@@ -1,6 +1,7 @@
 from typing import Any, Dict, Tuple
 
 from lightning import LightningModule
+from sklearn.metrics import r2_score
 import torch
 from torchmetrics import MeanSquaredError
 from transformers import BertModel
@@ -74,7 +75,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
 
         # update and log metrics
         self.train_loss(preds.squeeze(), targets)
-        self.log("train/loss", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/mse", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
 
         # return loss or backpropagation will fail
         return loss
@@ -94,7 +95,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
 
         # update and log metrics, val loss is mean squared error
         self.val_loss(preds.squeeze(), targets)
-        self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/mse", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_validation_epoch_end(self) -> None:
         "Lightning hook that is called when a validation epoch ends."
@@ -111,7 +112,16 @@ class NarcissisticPostBERTLitModule(LightningModule):
 
         # update and log metrics
         self.test_loss(preds.squeeze(), targets)
-        self.log("test/loss", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("test/mse", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
+
+        self.log(
+            "test/r2_score",
+            r2_score(targets.cpu(), preds.squeeze().cpu()),
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+        self.log("test/root_mse", torch.sqrt(self.test_loss.compute()), on_step=False, on_epoch=True, prog_bar=True)
 
     def on_test_epoch_end(self) -> None:
         """Lightning hook that is called when a test epoch ends."""
@@ -148,7 +158,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
                 "optimizer": optimizer,
                 "lr_scheduler": {
                     "scheduler": scheduler,
-                    "monitor": "val/loss",
+                    "monitor": "val/mse",
                     "interval": "epoch",
                     "frequency": 1,
                 },

@@ -1,14 +1,16 @@
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import hydra
+from lightning import Callback, LightningDataModule, LightningModule, Trainer
 import lightning as L
+from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
 import rootutils
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
-from lib.datamodules.datamodule import NarcissisticPostsSimpleDataModule
-from lib.models.abstract_base import AbstractBaseModel
-from lib.utils.instantiators import instantiate_loggers
+
+from lib.utils.instantiators import instantiate_callbacks, instantiate_loggers
+from lib.utils.logging_utils import log_hyperparameters
 from lib.utils.pylogger import RankedLogger
 from lib.utils.utils import extras, get_metric_value, task_wrapper
 
@@ -31,50 +33,54 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         L.seed_everything(cfg.seed, workers=True)
 
     log.info(f"Instantiating datamodule <{cfg.data._target_}>")
-    datamodule: NarcissisticPostsSimpleDataModule = hydra.utils.instantiate(cfg.data)
+    datamodule: LightningDataModule = hydra.utils.instantiate(cfg.data)
 
     log.info(f"Instantiating model <{cfg.model._target_}>")
-    model: AbstractBaseModel = hydra.utils.instantiate(cfg.model)
+    model: LightningModule = hydra.utils.instantiate(cfg.model)
+
+    log.info("Instantiating callbacks...")
+    callbacks: List[Callback] = instantiate_callbacks(cfg.get("callbacks"))
 
     log.info("Instantiating loggers...")
-    logger = instantiate_loggers(cfg.get("logger"))[0]
+    logger: List[Logger] = instantiate_loggers(cfg.get("logger"))
+
+    log.info(f"Instantiating trainer <{cfg.trainer._target_}>")
+    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, callbacks=callbacks, logger=logger)
 
     object_dict = {
         "cfg": cfg,
         "datamodule": datamodule,
         "model": model,
+        "callbacks": callbacks,
         "logger": logger,
+        "trainer": trainer,
     }
 
-    # log cfg with logger
-    logger.log_hyperparams(cfg)
+    if logger:
+        log.info("Logging hyperparameters!")
+        log_hyperparameters(object_dict)
 
     if cfg.get("train"):
         log.info("Starting training!")
-        model.train(datamodule.data_train.posts, datamodule.data_train.labels)
+        trainer.fit(model=model, datamodule=datamodule, ckpt_path=cfg.get("ckpt_path"))
 
-    train_metrics = model.evaluate(model.predict(datamodule.data_train.posts), datamodule.data_train.labels)
-    val_metrics = model.evaluate(model.predict(datamodule.data_val.posts), datamodule.data_val.labels)
-
-    log.info(f"Train metrics: {train_metrics}")
-    log.info(f"Validation metrics: {val_metrics}")
+    train_metrics = trainer.callback_metrics
 
     if cfg.get("test"):
         log.info("Starting testing!")
-        test_metrics = model.evaluate(model.predict(datamodule.data_test.posts), datamodule.data_test.labels)
-        test_metrics_second_category = model.evaluate(
-            model.predict(datamodule.data_test_second_category.posts), datamodule.data_test_second_category.labels
-        )
+        ckpt_path = trainer.checkpoint_callback.best_model_path
+        if ckpt_path == "":
+            log.warning("Best ckpt not found! Using current weights for testing...")
+            ckpt_path = None
+        trainer.test(model=model, datamodule=datamodule, ckpt_path=ckpt_path)
 
-    log.info(f"Test metrics: {test_metrics}")
-    metric_dict = {
-        "train": train_metrics,
-        "val": val_metrics,
-        "test": test_metrics,
-        "test_second_category": test_metrics_second_category,
-    }
+        if logger:
+            log.info(f"Best ckpt path: {ckpt_path}")
 
-    logger.log_metrics(metric_dict)
+    test_metrics = trainer.callback_metrics
+    # merge train and test metrics
+    metric_dict = {**train_metrics, **test_metrics}
+
     return metric_dict, object_dict
 
 

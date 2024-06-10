@@ -14,7 +14,7 @@ defaults:
 
 tags: ["bert"]
 
-seed: 12345
+seed: 51
 
 trainer:
   min_epochs: 1
@@ -23,7 +23,7 @@ trainer:
 
 model:
   optimizer:
-    lr: 0.01
+    lr: 3e-3
     weight_decay: 0.0
   hg_bert_model_name: "FacebookAI/xlm-roberta-base"
 

@@ -1,9 +1,9 @@
-_target_: lib.models.bert.NarcissisticPostBERTLitModule
+_target_: lib.models.lightning.bert.NarcissisticPostBERTLitModule
 
 optimizer:
   _target_: torch.optim.Adam
   _partial_: true
-  lr: 0.001
+  lr: 0.01
   weight_decay: 0.0
 
 scheduler:
@@ -13,4 +13,4 @@ scheduler:
   factor: 0.1
   patience: 10
 
-hg_bert_model_name: "bert-base-uncased"
+hg_bert_model_name: "FacebookAI/xlm-roberta-base"

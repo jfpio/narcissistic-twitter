@@ -2,10 +2,29 @@
 
 ## Project goals
 
-Create a model that can predict the narcissism of the person based on their tweets.
+Create a model that can predict the narcissism of the person based on their tweets. The project uses data that distinguishes between two-factor Narcissism - Admiration (ADM) and Rivary (RIV). Each factor is calculated from the average of nine responses to statements about narcissism, to which the respondent answers on a scale of 1-6 (from strongly disagree to strongly agree).
 
 ## Train and test models
-The repository is inspired by [lightning-hydra-template](https://github.com/ashleve/lightning-hydra-template). To train a model one should `python train.py`. An experiment should be defined in `configs/experiments`, where one should make necessary overrides.
+The repository is inspired by [lightning-hydra-template](https://github.com/ashleve/lightning-hydra-template). To train a model one should use `python train_lightning.py experiment=bert` (lightning models) or `train.py experiment=baseline` (other models). An experiment should be defined in `configs/experiments`, where one should make necessary overrides.
+
+### Examples
+#### Multirun of baselines
+For example, one can evaluate all baselines with one command line.
+```sh
+python train.py experiment=baseline model=baselines/decision_tree,baselines/gradient_boosting,baselines/mlp,baselines/random_forest,baselines/svr seed=42,43,44,45,46 -m
+```
+
+#### Few shot
+```sh
+python train.py -m experiment=few_shot_casual_conversation
+```
+#### Bert Optuna
+Searching for best hyperparameters using [Optuna](https://optuna.readthedocs.io/en/stable/).
+```sh
+python python train_lightning.py experiment=bert hparams_search=bert_optuna
+```
+The results are saved in the file example.db
+It can return an error if there are a couple of experiments with the same name/similar parameters. Changing the study_name should resolve the problem. The second option is to change the storage file. 
 
 ## Project setup
 

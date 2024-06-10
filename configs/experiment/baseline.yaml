@@ -1,0 +1,24 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /data: narcissistic_posts_simple
+  - override /model: baselines/decision_tree
+  - override /callbacks: default
+  - override /trainer: default
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["baseline", "choosing_best_baseline_on_val"]
+
+seed: 72
+
+
+data:
+  post_category: post_abortion
+  label_category: adm
+  second_post_category: post_travel
+
