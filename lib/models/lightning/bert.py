@@ -25,6 +25,15 @@ class NarcissisticPostBERTLitModule(LightningModule):
         self.val_loss = MeanSquaredError()
         self.test_loss = MeanSquaredError()
 
+        self.preds_val = []
+        self.targets_val = []
+
+        self.preds_train = []
+        self.targets_train = []
+
+        self.preds_test = []
+        self.targets_test = []
+
     def forward(self, x: dict) -> torch.Tensor:
         # Get the pooled output from BERT
         input_ids = x["input_ids"]
@@ -42,6 +51,8 @@ class NarcissisticPostBERTLitModule(LightningModule):
         # by default lightning executes validation step sanity checks before training starts,
         # so it's worth to make sure validation metrics don't store results from these checks
         self.val_loss.reset()
+        self.preds_train = []
+        self.targets_train = []
 
     def model_step(self, batch: Tuple[torch.Tensor, torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Perform a single model step on a batch of data.
@@ -72,16 +83,25 @@ class NarcissisticPostBERTLitModule(LightningModule):
         :return: A tensor of losses between model predictions and targets.
         """
         loss, preds, targets = self.model_step(batch)
+        
+        self.preds_train += preds
+        self.targets_train += targets
 
         # update and log metrics
         self.train_loss(preds.squeeze(), targets)
         self.log("train/mse", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
+        #self.log("train/preds", self.preds_train, on_step=False, on_epoch=True, prog_bar=True)
+        #self.log("train/targets", self.targets_train, on_step=False, on_epoch=True, prog_bar=True)
+
 
         # return loss or backpropagation will fail
         return loss
 
     def on_train_epoch_end(self) -> None:
         "Lightning hook that is called when a training epoch ends."
+        for pred, target in zip(self.preds_train, self.targets_train):
+            self.log("train/preds", pred)
+            self.log("train/targets", target)
         pass
 
     def validation_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> None:
@@ -93,12 +113,20 @@ class NarcissisticPostBERTLitModule(LightningModule):
         """
         loss, preds, targets = self.model_step(batch)
 
+        self.preds_val += preds
+        self.targets_val += targets
+
         # update and log metrics, val loss is mean squared error
         self.val_loss(preds.squeeze(), targets)
         self.log("val/mse", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
+        #self.log("val/preds", self.preds_val, on_step=False, on_epoch=True, prog_bar=True)
+        #self.log("val/targets", self.targets_val, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_validation_epoch_end(self) -> None:
         "Lightning hook that is called when a validation epoch ends."
+        for pred, target in zip(self.preds_val, self.targets_val):
+            self.log("val/preds", pred)
+            self.log("val/targets", target)
         pass
 
     def test_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> None:
@@ -110,9 +138,14 @@ class NarcissisticPostBERTLitModule(LightningModule):
         """
         loss, preds, targets = self.model_step(batch)
 
+        self.preds_test += preds
+        self.targets_test += targets
+
         # update and log metrics
         self.test_loss(preds.squeeze(), targets)
         self.log("test/mse", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
+        #self.log("test/preds", self.preds_test, on_step=False, on_epoch=True, prog_bar=True)
+        #self.log("test/targets", self.targets_test, on_step=False, on_epoch=True, prog_bar=True)
 
         self.log(
             "test/r2_score",
@@ -125,6 +158,9 @@ class NarcissisticPostBERTLitModule(LightningModule):
 
     def on_test_epoch_end(self) -> None:
         """Lightning hook that is called when a test epoch ends."""
+        for pred, target in zip(self.preds_test, self.targets_test):
+            self.log("test/preds", pred)
+            self.log("test/targets", target)
         pass
 
     def setup(self, stage: str) -> None:
