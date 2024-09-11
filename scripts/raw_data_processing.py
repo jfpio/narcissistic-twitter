@@ -36,6 +36,15 @@ def process_raw_data(file_to_open: Union[str, Path], target_name: Union[str, Pat
     # Change the column names convention to snake_case
     data.columns = [col.lower() for col in data.columns]
 
+    # Remove leading and trailing spaces
+    data.columns = [col.strip() for col in data.columns]
+
+    # Change spaces to underscores
+    data.columns = [col.replace(" ", "_") for col in data.columns]
+
+    # Remove underscores at the end of the column names
+    data.columns = [col.rstrip("_") for col in data.columns]
+
     # Remove double underscores
     data.columns = [col.replace("___", "_") for col in data.columns]
 
@@ -65,3 +74,4 @@ def process_raw_data(file_to_open: Union[str, Path], target_name: Union[str, Pat
 
 if __name__ == "__main__":
     process_raw_data("data/raw/teach AI 12.12.23.sav", "data/processed/processed_data.csv")
+    process_raw_data("data/raw/teach AI 26.08.24.sav", "data/processed/processed_new_data.csv")
