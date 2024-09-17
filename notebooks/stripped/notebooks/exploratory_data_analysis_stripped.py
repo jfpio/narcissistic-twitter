@@ -58,7 +58,7 @@ data.nunique()
 
 """
 The bonus text fields (ending with text) are mostly empty (the total number of rows is 526). 
-Apart from popular social media sites, 27 other sites have been reported. That is twice as many social media platforms as in previous data.
+Apart from popular social media sites, 27 other sites have been reported. That is twice as many social media platforms as in previous data. In travel post column there is one duplicate. This lead to discovery that some posts are AI generated.
 """
 
 """
@@ -407,6 +407,10 @@ The emotional (abortion) post has a more topic-focused vocabulary and a less div
 In data there isn't a strong correlation between posts length and Narcissistic traits. That is also the case for Narcissism and demographics.
 
 New data changed the mean length of a post to longer, gave a new topic and lowered almost all correlations. Apart from that results didn't show any differences.
+"""
+
+"""
+After looking into AI generated posts (ultimately 16 was found) - based on two criteria. 1. Post starts with something like "just finished" or "just returned". 2. There are recurring tags written in camel case (#TravelDiaries, #FutureTech). That leaves final number of observations at 510. It is interesting that those posts were only found in the new data, so either the models weren't used previously (there was also no AI topic then) or they got more predictable in generating Twitter posts.
 """
 
 """
