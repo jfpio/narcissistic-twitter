@@ -118,6 +118,16 @@ def remove_obsolete_observations(data: pd.DataFrame) -> pd.DataFrame:
 
 if __name__ == "__main__":
     split_datasets(
+        "data/processed/processed_data.csv",
+        "data/split/train.csv",
+        "data/split/test.csv",
+        "data/split/validate.csv",
+        random_state=47,
+        remove_obsolete=True,
+        append=False,
+    )
+
+    split_datasets(
         "data/processed/processed_new_data.csv",
         "data/split/full_train.csv",
         "data/split/full_test.csv",
