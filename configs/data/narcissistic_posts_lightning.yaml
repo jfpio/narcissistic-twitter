@@ -1,8 +1,8 @@
 _target_: lib.datamodules.lightning.datamodule.NarcissisticPostsLightningDataModule
 data_dir: ${paths.data_dir}
-train_file: train.csv
-val_file: validate.csv
-test_file: test.csv
+train_file: full_train.csv
+val_file: full_validate.csv
+test_file: full_test.csv
 post_category: post_travel
 label_category: adm
 second_post_category: post_abortion
