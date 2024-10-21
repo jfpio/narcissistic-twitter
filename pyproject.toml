@@ -129,6 +129,8 @@ hydra-optuna-sweeper = "^1.2.0"
 sqlalchemy = "1.4.46"
 langchain-chroma = "^0.1.0"
 rootutils = "^1.0.7"
+requests = "^2.32.3"
+tweepy = "^4.14.0"
 
 
 [tool.poetry.group.test.dependencies]

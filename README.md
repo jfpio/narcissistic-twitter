@@ -60,10 +60,16 @@ Poetry allows us to use groups with specific dependencies. As Poetry is super co
 Create your environment file from template `.env.example`. Change its name to `.env` file and paste your credentials.
 
 #### Twitter credentials
-Generate your bearer token [here](https://developer.twitter.com/en/portal/dashboard) and add it to your `.env` file.
+Generate your bearer token [here](https://developer.twitter.com/en/portal/dashboard) and add it to your `.env` file. You will also need a Twitter project and connected to it Consumer Keys (API Key and Secret). 
 
 #### Load credentials
 You can use:
+```python
+import os
+
+os.getenv('KEY_NAME')
+```
+
 In the application, you may also use [python-dotenv](https://pypi.org/project/python-dotenv/):
 ```python
 from dotenv import load_dotenv
