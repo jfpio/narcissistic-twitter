@@ -7,14 +7,15 @@ This is another way of baseline comparison where the psychologist is shown the s
 |--------------|-----------|------------|
 | I wish I could travel 24/7 and get paid for it | 1.444 | 1.111 |
 
-And then has to asses the admiration and rivalry scores in the test dataset (47 examples) based on the posts. As shown below. 
+And then has to assess the admiration and rivalry scores in the test dataset (47 examples) based on the posts. As shown below. 
 
 | post_travel         | adm     | riv |
 |--------------|-----------|------------|
 | Roads were quiet on the way to London today. |  | |
 
-Then the comparison between the true and predicted results is conducted.
-The same can be done for the abortion posts. Here for now there is only data from one psychologist, but in the future the results from two more will be added.
+Then the comparison between the true and predicted results is conducted. 
+
+The final results show that human psychologists perform worse than Few-shot method.
 """
 
 """
