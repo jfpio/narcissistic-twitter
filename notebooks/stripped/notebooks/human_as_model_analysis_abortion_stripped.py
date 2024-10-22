@@ -15,7 +15,7 @@ And then has to assess the admiration and rivalry scores in the test dataset (47
 
 Then the comparison between the true and predicted results is conducted.
 
-The final results show that human psychologists perform better than Few-shot method.
+The final results show that human psychologists perform better than Few-shot method. 
 """
 
 """
