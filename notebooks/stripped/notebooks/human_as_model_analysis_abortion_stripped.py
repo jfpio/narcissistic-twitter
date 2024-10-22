@@ -1,7 +1,7 @@
 """
 # Human as a model
 
-This is another way of baseline comparison where the psychologist is shown the same data as the model: post (travel) and two types of narcissism scores - the training dataset in total of 93 examples as the one below.
+This is another way of baseline comparison where the psychologist is shown the same data as the model: post (abortion) and two types of narcissism scores - the training dataset in total of 93 examples as the one below.
 
 | post_travel         | adm     | riv |
 |--------------|-----------|------------|
@@ -13,9 +13,9 @@ And then has to assess the admiration and rivalry scores in the test dataset (47
 |--------------|-----------|------------|
 | Roads were quiet on the way to London today. |  | |
 
-Then the comparison between the true and predicted results is conducted. 
+Then the comparison between the true and predicted results is conducted.
 
-The final results show that human psychologists perform worse than Few-shot method.
+The final results show that human psychologists perform better than Few-shot method. 
 """
 
 """
@@ -29,9 +29,9 @@ import seaborn as sns
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 
-path_to_human_assessed_A = '../data/responses/human_as_model_travel_A.csv'
-path_to_human_assessed_B = '../data/responses/human_as_model_travel_B.csv'
-path_to_human_assessed_C = '../data/responses/human_as_model_travel_C.csv'
+path_to_human_assessed_A = '../data/responses/human_as_model_abortion_A.csv'
+path_to_human_assessed_B = '../data/responses/human_as_model_abortion_B.csv'
+path_to_human_assessed_C = '../data/responses/human_as_model_abortion_C.csv'
 
 path_to_test = '../data/split/test.csv'
 
@@ -45,17 +45,17 @@ human_data_A.head()
 
 # load the test data
 test_data = pd.read_csv(path_to_test)
-test_data[['post_travel','adm','riv']].head()
+test_data[['post_abortion','adm','riv']].head()
 
 
 # drop not needed columns
-test_data = test_data[['post_travel','adm','riv']]
+test_data = test_data[['post_abortion','adm','riv']]
 
 
 # Merge the two dataframes
-merged_data = test_data.merge(human_data_A, on='post_travel', suffixes=('', '_human_A')) \
-                  .merge(human_data_B, on='post_travel', suffixes=('', '_human_B')) \
-                  .merge(human_data_C, on='post_travel', suffixes=('', '_human_C'))
+merged_data = test_data.merge(human_data_A, on='post_abortion', suffixes=('', '_human_A')) \
+                  .merge(human_data_B, on='post_abortion', suffixes=('', '_human_B')) \
+                  .merge(human_data_C, on='post_abortion', suffixes=('', '_human_C'))
 merged_data.rename(columns={'adm': 'adm_original', 'riv': 'riv_original'}, inplace=True)
 # Check the length of the merged data
 print(f"Merged correctly: {len(merged_data)==len(human_data_A)==len(human_data_B)==len(human_data_C)==len(test_data)}")
@@ -73,8 +73,8 @@ mse_adm_B = mean_squared_error(merged_data['adm_human_B'], merged_data['adm_orig
 mse_riv_B = mean_squared_error(merged_data['riv_human_B'], merged_data['riv_original'])
 mse_adm_C = mean_squared_error(merged_data['adm_human_C'], merged_data['adm_original'])
 mse_riv_C = mean_squared_error(merged_data['riv_human_C'], merged_data['riv_original'])
-print(f"Mean Squared Error for adm: A:{mse_adm_A}, B:{mse_adm_B}, C:{mse_adm_C}")
-print(f"Mean Squared Error for riv: A:{mse_riv_A}, B:{mse_riv_B}, C:{mse_riv_C}")
+print(f"Mean Squared Error for adm: A:{mse_adm_A}, B:{mse_adm_B}, C:{mse_adm_C}, mean: {np.mean([mse_adm_A,mse_adm_B,mse_adm_C])}")
+print(f"Mean Squared Error for riv: A:{mse_riv_A}, B:{mse_riv_B}, C:{mse_riv_C}, mean: {np.mean([mse_riv_A,mse_riv_B,mse_riv_C])}")
 
 
 """
@@ -183,72 +183,23 @@ Val/MSE	Test/MSE	Second_Test/MSE
 1.360076	0.716525	1.243888
 """
 
-def plot_mse_scatter(models, val_mse, test_mse, other_model,title):
-    # Combine the data into a list of tuples for sorting
-    data = list(zip(models, val_mse, test_mse,other_model))
-    
-    # Sort the data by test MSE
-    sorted_data = sorted(data, key=lambda x: x[2])
-    
-    # Unpack the sorted data back into separate lists
-    sorted_models, sorted_val_mse, sorted_test_mse, other_model_mse = zip(*sorted_data)
-    
-    # Convert the sorted models list to a numeric scale for plotting
-    x = range(len(sorted_models))
-    
-    # Create a scatter plot with smaller figure size and larger fonts
-    plt.figure(figsize=(8, 6))
-    
-    # Plot validation MSE
-    plt.scatter(x, sorted_val_mse, color='b', label='Validation', s=100, marker='o', edgecolor='k')
-    
-    # Plot test MSE
-    plt.scatter(x, sorted_test_mse, color='g', label='Test', s=100, marker='s', edgecolor='k')
-    
-    # Plot test MSE
-    plt.scatter(x, other_model_mse, color='y', label='Test second category', s=100, marker='x', edgecolor='k')
+# Data from the provided results
+data = {
+    'Val/MSE': [0.873661, 1.351418, 1.450036, 1.261327, 1.360076],
+    'Test/MSE': [1.394292, 1.211501, 1.154834, 1.010549, 0.716525],
+    'Second_Test/MSE': [1.350694, 1.775061, 1.376452, 1.795675, 1.243888]
+}
 
-    # Add labels and title with larger font size
-    plt.xlabel('Models', fontsize=30)
-    plt.ylabel('MSE', fontsize=30)
-    plt.title('Metrics:' + title, fontsize=34)
-    plt.xticks(x, sorted_models, fontsize=24)
-    plt.yticks(fontsize=24)
-    plt.legend(fontsize=24)
-    
-    # Adding grid for better readability
-    plt.grid(True, linestyle='--', alpha=0.6)
-    plt.gca().set_axisbelow(True)  # Move grid lines to the background
-    
-    # Display the plot
-    plt.tight_layout()
-    plt.show()
+# Convert data to DataFrame
+df = pd.DataFrame(data)
 
-# Data
-models = ["LR", "SVR", "RF", "GBR", "MLPR", "DFR"]
-val_mse_adm_a = [0.83, 0.67, 0.70, 0.91, 0.88, 1.64]
-test_mse_adm_a = [0.79, 0.65, 0.74, 0.83, 1.04, 1.57]
-test_mse_adm_a_other = [0.75, 0.65, 0.70, 0.71, 1.08, 0.97]
-
-val_mse_riv_a = [0.58, 0.40, 0.51, 0.64, 0.58, 1.25]
-test_mse_riv_a = [0.89, 0.73, 0.79, 0.90, 1.01, 1.12]
-test_mse_riv_a_other = [0.86, 0.70, 0.73, 0.71, 1.29, 0.97]
-
-val_mse_riv_t = [0.62, 0.36, 0.47, 0.80, 0.58, 1.16]
-test_mse_riv_t = [1.06, 0.74, 0.82, 1.06, 1.08, 1.09]
-test_mse_riv_t_other = [0.93, 0.72, 0.84, 1.14, 1.42, 1.64]
-
-val_mse_adm_t = [0.72, 0.63, 0.61, 0.88, 0.68, 1.34]
-test_mse_adm_t = [0.77, 0.64, 0.74, 0.82, 0.94, 1.44]
-test_mse_adm_t_other = [0.87, 0.65, 0.66, 0.81, 0.96, 1.40]
-
-titles = ["Abortion Post (Riv)", "Travel Post (Riv)", "Abortion Post (Adm)", "Travel Post (Adm)"]
-
-
-# Calling the function
-plot_mse_scatter(models, val_mse_riv_a, test_mse_riv_a, test_mse_riv_a_other,titles[0])
-plot_mse_scatter(models, val_mse_riv_t, test_mse_riv_t, test_mse_riv_t_other,titles[1])
-plot_mse_scatter(models, val_mse_adm_a, test_mse_adm_a, test_mse_adm_a_other,titles[2])
-plot_mse_scatter(models, val_mse_adm_t, test_mse_adm_t, test_mse_adm_t_other,titles[3])
+# Plotting with seaborn
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=df)
+plt.title('Few-Shot Prompting Method For Travel',fontsize=24)
+plt.ylabel('MSE',fontsize=16)
+plt.xlabel('Dataset',fontsize=16)
+plt.xticks(ticks=range(3), labels=['Validation', 'Test', 'Abortion Post Test'],fontsize=16)
+plt.show()
 
 
