@@ -58,6 +58,6 @@ if __name__ == "__main__":
         file_to_draw="data/split/full_test.csv",
         file_to_get_size="data/split/test.csv",
         target_name="data/split/human_test_ai.csv",
-        remove_observation=True,
+        remove_observation=False,
         random_state=47,
     )
