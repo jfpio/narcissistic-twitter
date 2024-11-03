@@ -11,9 +11,11 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.svm import SVR
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import root_mean_squared_error
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+
+from matplotlib import pyplot as plt
 
 
 post_type = 'post_travel'
@@ -68,42 +70,43 @@ def predict(model, X_test):
     return model.predict(X_test)
 
 def evaluate(y_test, y_pred):
-    return mean_squared_error(y_test, y_pred)
+    return root_mean_squared_error(y_test, y_pred)
 
 
 lr_model = LinearRegression()
 train_model(lr_model, X_train, y_train)
 y_pred = predict(lr_model, X_test)
-mse = evaluate(y_test, y_pred)
-print(f"Linear Regression MSE: {mse}")
+rmse = evaluate(y_test, y_pred)
+print(f"Linear Regression MSE: {rmse}")
 
 
 mlpr_model = MLPRegressor(max_iter=800)
 train_model(mlpr_model, X_train, y_train)
 y_pred = predict(mlpr_model, X_test)
-mse = evaluate(y_test, y_pred)
-print(f"MLP Regressor MSE: {mse}")
+rmse = evaluate(y_test, y_pred)
+print(f"MLP Regressor MSE: {rmse}")
 
 
 svr_model = SVR()
 train_model(svr_model, X_train, y_train)
 y_pred = predict(svr_model, X_test)
-mse = evaluate(y_test, y_pred)
-print(f"SVR MSE: {mse}")
+rmse = evaluate(y_test, y_pred)
+print(f"SVR MSE: {rmse}")
+print(f"{y_pred=},{y_test=}")
 
 
 rfr_model = RandomForestRegressor()
 train_model(rfr_model, X_train, y_train)
 y_pred = predict(rfr_model, X_test)
-mse = evaluate(y_test, y_pred)
-print(f"Random Forest MSE: {mse}")
+rmse = evaluate(y_test, y_pred)
+print(f"Random Forest MSE: {rmse}")
 
 
 dtr_model = DecisionTreeRegressor()
 train_model(dtr_model, X_train, y_train)
 y_pred = predict(dtr_model, X_test)
-mse = evaluate(y_test, y_pred)
-print(f"Decision Tree MSE: {mse}")
+rmse = evaluate(y_test, y_pred)
+print(f"Decision Tree MSE: {rmse}")
 
 
 """
@@ -141,11 +144,84 @@ test_counts_ab['narcissism'] = data[narcism_type]
 X_test_ab = test_counts_ab.iloc[:, :-1]
 y_test_ab = np.ravel(test_counts_ab[['narcissism']])
 y_pred_ab = predict(best_model, X_test_ab)
-mse = evaluate(y_test_ab, y_pred_ab)
-print(f"SVR MSE test_ab: {mse}")
+rmse = evaluate(y_test_ab, y_pred_ab)
+print(f"SVR RMSE test_ab: {rmse}")
 
 
 """
 It is interesting that the model rather correctly predicts the 'ADM' narcissism in abortion posts despite being trained on different data. MSE is still less then 1 point (on the scale 1 to 6)
 """
+
+"""
+# Baseline model results
+"""
+
+def plot_mse_scatter(models, val_mse, test_mse, other_model,title):
+    # Combine the data into a list of tuples for sorting
+    data = list(zip(models, val_mse, test_mse,other_model))
+    
+    # Sort the data by test MSE
+    sorted_data = sorted(data, key=lambda x: x[2])
+    
+    # Unpack the sorted data back into separate lists
+    sorted_models, sorted_val_mse, sorted_test_mse, other_model_mse = zip(*sorted_data)
+    
+    # Convert the sorted models list to a numeric scale for plotting
+    x = range(len(sorted_models))
+    
+    # Create a scatter plot with smaller figure size and larger fonts
+    plt.figure(figsize=(8, 6))
+    
+    # Plot validation MSE
+    plt.scatter(x, sorted_val_mse, color='b', label='Validation', s=100, marker='o', edgecolor='k')
+    
+    # Plot test MSE
+    plt.scatter(x, sorted_test_mse, color='g', label='Test', s=100, marker='s', edgecolor='k')
+    
+    # Plot test MSE
+    plt.scatter(x, other_model_mse, color='y', label='Test second category', s=100, marker='x')
+
+    # Add labels and title with larger font size
+    plt.xlabel('Models', fontsize=30)
+    plt.ylabel('MSE', fontsize=30)
+    plt.title('Metrics:' + title, fontsize=34)
+    plt.xticks(x, sorted_models, fontsize=24)
+    plt.yticks(fontsize=24)
+    plt.legend(fontsize=24)
+    
+    # Adding grid for better readability
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.gca().set_axisbelow(True)  # Move grid lines to the background
+    
+    # Display the plot
+    plt.tight_layout()
+    plt.show()
+
+# Data taken from Nepute
+models = ["LR", "SVR", "RF", "GBR", "MLPR", "DFR"]
+val_mse_adm_a = [0.83, 0.67, 0.70, 0.91, 0.88, 1.64]
+test_mse_adm_a = [0.79, 0.65, 0.74, 0.83, 1.04, 1.57]
+test_mse_adm_a_other = [0.75, 0.65, 0.70, 0.71, 1.08, 0.97]
+
+val_mse_riv_a = [0.58, 0.40, 0.51, 0.64, 0.58, 1.25]
+test_mse_riv_a = [0.89, 0.73, 0.79, 0.90, 1.01, 1.12]
+test_mse_riv_a_other = [0.86, 0.70, 0.73, 0.71, 1.29, 0.97]
+
+val_mse_riv_t = [0.62, 0.36, 0.47, 0.80, 0.58, 1.16]
+test_mse_riv_t = [1.06, 0.74, 0.82, 1.06, 1.08, 1.09]
+test_mse_riv_t_other = [0.93, 0.72, 0.84, 1.14, 1.42, 1.64]
+
+val_mse_adm_t = [0.72, 0.63, 0.61, 0.88, 0.68, 1.34]
+test_mse_adm_t = [0.77, 0.64, 0.74, 0.82, 0.94, 1.44]
+test_mse_adm_t_other = [0.87, 0.65, 0.66, 0.81, 0.96, 1.40]
+
+titles = ["Abortion Post (Riv)", "Travel Post (Riv)", "Abortion Post (Adm)", "Travel Post (Adm)"]
+
+
+# Calling the function
+plot_mse_scatter(models, val_mse_riv_a, test_mse_riv_a, test_mse_riv_a_other,titles[0])
+plot_mse_scatter(models, val_mse_riv_t, test_mse_riv_t, test_mse_riv_t_other,titles[1])
+plot_mse_scatter(models, val_mse_adm_a, test_mse_adm_a, test_mse_adm_a_other,titles[2])
+plot_mse_scatter(models, val_mse_adm_t, test_mse_adm_t, test_mse_adm_t_other,titles[3])
+
 
