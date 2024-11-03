@@ -45,25 +45,50 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         "model": model,
         "logger": logger,
     }
+    delta_huber = cfg.evaluation.delta_huber
+    quantile = cfg.evaluation.quantile
 
     # log cfg with logger
     logger.log_hyperparams(cfg)
 
+    # TODO: don't train if this is a few shot model - maybe based on a tag, maybe model name
     if cfg.get("train"):
         log.info("Starting training!")
         model.train(datamodule.data_train.posts, datamodule.data_train.labels)
 
-    train_metrics = model.evaluate(model.predict(datamodule.data_train.posts), datamodule.data_train.labels)
-    val_metrics = model.evaluate(model.predict(datamodule.data_val.posts), datamodule.data_val.labels)
+    train_metrics = model.evaluate(
+        model.predict(datamodule.data_train.posts),
+        datamodule.data_train.labels,
+        delta_huber=delta_huber,
+        quantile=quantile,
+    )
+    val_metrics = model.evaluate(
+        model.predict(datamodule.data_val.posts), datamodule.data_val.labels, delta_huber=delta_huber, quantile=quantile
+    )
 
     log.info(f"Train metrics: {train_metrics}")
     log.info(f"Validation metrics: {val_metrics}")
 
     if cfg.get("test"):
         log.info("Starting testing!")
-        test_metrics = model.evaluate(model.predict(datamodule.data_test.posts), datamodule.data_test.labels)
+        test_metrics = model.evaluate(
+            model.predict(datamodule.data_test.posts),
+            datamodule.data_test.labels,
+            delta_huber=delta_huber,
+            quantile=quantile,
+        )
+
         test_metrics_second_category = model.evaluate(
-            model.predict(datamodule.data_test_second_category.posts), datamodule.data_test_second_category.labels
+            model.predict(datamodule.data_test_second_category.posts),
+            datamodule.data_test_second_category.labels,
+            delta_huber=delta_huber,
+            quantile=quantile,
+        )
+        test_metrics_third_category = model.evaluate(
+            model.predict(datamodule.data_test_third_category.posts),
+            datamodule.data_test_third_category.labels,
+            delta_huber=delta_huber,
+            quantile=quantile,
         )
 
     log.info(f"Test metrics: {test_metrics}")
@@ -72,6 +97,7 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         "val": val_metrics,
         "test": test_metrics,
         "test_second_category": test_metrics_second_category,
+        "test_third_category": test_metrics_third_category,
     }
 
     logger.log_metrics(metric_dict)
