@@ -1,6 +1,7 @@
 _target_: lib.models.few_shot.FewShotLearningModel
 
-model_name: gpt-4-turbo
+model_name: gpt-4o-mini
+embedding_model: text-embedding-3-small
 api_key: ${oc.env:OPENAI_API_KEY}
 number_of_shots: 5
 model_role: You are a psychologist and you are assessing a patient's Narcissism. The patient is talking about their recent travel. Return only float number between 1 and 6.

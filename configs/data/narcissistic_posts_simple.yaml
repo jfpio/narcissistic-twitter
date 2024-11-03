@@ -6,3 +6,4 @@ test_file: full_test.csv
 post_category: post_travel
 label_category: adm
 second_post_category: post_abortion
+third_post_category: post_ai
