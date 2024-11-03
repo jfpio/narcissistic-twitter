@@ -1,8 +1,9 @@
 from typing import Any, Dict, Tuple
 
 from lightning import LightningModule
-from sklearn.metrics import r2_score
+from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 import torch
+from torch.nn import HuberLoss
 from torchmetrics import MeanSquaredError
 from transformers import BertModel
 
@@ -115,13 +116,50 @@ class NarcissisticPostBERTLitModule(LightningModule):
         self.log("test/mse", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
 
         self.log(
-            "test/r2_score",
-            r2_score(targets.cpu(), preds.squeeze().cpu()),
+            "test/root_mse",
+            root_mean_squared_error(targets.cpu(), preds.squeeze().cpu()),
             on_step=False,
             on_epoch=True,
             prog_bar=True,
         )
-        self.log("test/root_mse", torch.sqrt(self.test_loss.compute()), on_step=False, on_epoch=True, prog_bar=True)
+
+        self.log(
+            "test/mae",
+            mean_absolute_error(targets.cpu(), preds.squeeze().cpu()),
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+
+        self.log(
+            "test/maxAE",
+            torch.max(torch.abs(targets.cpu() - preds.squeeze().cpu())),
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+        # TODO: Move the HuberLoss to init? or is there a better solution?
+        huber_loss = HuberLoss(delta=1.0)  # TODO: make delta a hyperparameter
+
+        self.log(
+            "test/HuberLoss",
+            huber_loss(targets.cpu(), preds.squeeze().cpu()),
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+
+        self.log(
+            "test/quantile_loss",
+            self.quantile_loss(targets.cpu(), preds.squeeze().cpu(), 1.0).item(),  # TODO: implement quantile value
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+
+    def quantile_loss(self, y_true: torch.Tensor, y_pred: torch.Tensor, quantile: float = 1.0) -> torch.Tensor:
+        error = y_true - y_pred
+        return torch.mean(torch.max(quantile * error, (quantile - 1) * error))
 
     def on_test_epoch_end(self) -> None:
         """Lightning hook that is called when a test epoch ends."""
