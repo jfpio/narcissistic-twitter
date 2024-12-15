@@ -75,7 +75,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         loss, preds, targets = self.model_step(batch)
 
         # update and log metrics
-        self.train_loss(preds.squeeze(), targets)
+        self.train_loss(preds.view(-1), targets)
         self.log("train/mse", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
 
         # return loss or backpropagation will fail
