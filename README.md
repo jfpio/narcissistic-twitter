@@ -24,7 +24,7 @@ python train.py -m experiment=few_shot/casual_conversation
 #### Bert Optuna
 Searching for best hyperparameters using [Optuna](https://optuna.readthedocs.io/en/stable/).
 ```sh
-python python train_lightning.py experiment=bert hparams_search=bert_optuna
+python train_lightning.py experiment=bert hparams_search=bert_optuna
 ```
 The results are saved in the file example.db
 It can return an error if there are a couple of experiments with the same name/similar parameters. Changing the study_name should resolve the problem. The second option is to change the storage file. 
