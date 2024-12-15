@@ -14,6 +14,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         hg_bert_model_name: str,
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
+        dropout_rate: float,
     ) -> None:
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -33,7 +34,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         outputs = self.encoder(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
 
-        # Pass through the classification/regression head
+        pooled_output = self.dropout(pooled_output)
         logits = self.classifier_head(pooled_output)
 
         return logits
@@ -175,6 +176,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         :param stage: Either `"fit"`, `"validate"`, `"test"`, or `"predict"`.
         """
         self.encoder = BertModel.from_pretrained(self.hparams.hg_bert_model_name)
+        self.dropout = torch.nn.Dropout(self.hparams.dropout_rate)
         self.classifier_head = torch.nn.Linear(self.encoder.config.hidden_size, 1)
 
         for param in self.encoder.parameters():
