@@ -1,8 +1,10 @@
 from typing import Any, Dict, Tuple
 
 from lightning import LightningModule
-from sklearn.metrics import r2_score
+from omegaconf import OmegaConf
+from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 import torch
+from torch.nn import HuberLoss
 from torchmetrics import MeanSquaredError
 from transformers import BertModel
 
@@ -13,6 +15,8 @@ class NarcissisticPostBERTLitModule(LightningModule):
         hg_bert_model_name: str,
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
+        dropout_rate: float,
+        evaluation_config: OmegaConf,
     ) -> None:
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -32,7 +36,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         outputs = self.encoder(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
 
-        # Pass through the classification/regression head
+        pooled_output = self.dropout(pooled_output)
         logits = self.classifier_head(pooled_output)
 
         return logits
@@ -60,7 +64,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         y = batch["labels"]
         preds = self(x)
 
-        loss = torch.nn.functional.mse_loss(preds.squeeze(), y)
+        loss = torch.nn.functional.mse_loss(preds.view(-1), y)
         return loss, preds, y
 
     def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
@@ -74,7 +78,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         loss, preds, targets = self.model_step(batch)
 
         # update and log metrics
-        self.train_loss(preds.squeeze(), targets)
+        self.train_loss(preds.view(-1), targets)
         self.log("train/mse", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
 
         # return loss or backpropagation will fail
@@ -115,13 +119,49 @@ class NarcissisticPostBERTLitModule(LightningModule):
         self.log("test/mse", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
 
         self.log(
-            "test/r2_score",
-            r2_score(targets.cpu(), preds.squeeze().cpu()),
+            "test/root_mse",
+            root_mean_squared_error(targets.cpu(), preds.view(-1).cpu()),
             on_step=False,
             on_epoch=True,
             prog_bar=True,
         )
-        self.log("test/root_mse", torch.sqrt(self.test_loss.compute()), on_step=False, on_epoch=True, prog_bar=True)
+
+        self.log(
+            "test/mae",
+            mean_absolute_error(targets.cpu(), preds.view(-1).cpu()),
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+
+        self.log(
+            "test/maxAE",
+            torch.max(torch.abs(targets.cpu() - preds.view(-1).cpu())),
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+
+        huber_loss = HuberLoss(delta=self.hparams.evaluation_config.delta_huber)
+        self.log(
+            "test/HuberLoss",
+            huber_loss(targets.cpu(), preds.view(-1).cpu()),
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+
+        self.log(
+            "test/quantile_loss",
+            self.quantile_loss(targets.cpu(), preds.view(-1).cpu(), self.hparams.evaluation_config.quantile).item(),
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+
+    def quantile_loss(self, y_true: torch.Tensor, y_pred: torch.Tensor, quantile: float = 1.0) -> torch.Tensor:
+        error = y_true - y_pred
+        return torch.mean(torch.max(quantile * error, (quantile - 1) * error))
 
     def on_test_epoch_end(self) -> None:
         """Lightning hook that is called when a test epoch ends."""
@@ -137,6 +177,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         :param stage: Either `"fit"`, `"validate"`, `"test"`, or `"predict"`.
         """
         self.encoder = BertModel.from_pretrained(self.hparams.hg_bert_model_name)
+        self.dropout = torch.nn.Dropout(self.hparams.dropout_rate)
         self.classifier_head = torch.nn.Linear(self.encoder.config.hidden_size, 1)
 
         for param in self.encoder.parameters():

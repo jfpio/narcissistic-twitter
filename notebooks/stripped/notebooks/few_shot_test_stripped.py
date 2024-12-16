@@ -4,10 +4,12 @@ from langchain_core.prompts import FewShotChatMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 import os
 
-from sklearn.metrics import mean_squared_error 
+from sklearn.metrics import root_mean_squared_error 
 
-import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 import re
 import neptune
 
@@ -135,7 +137,7 @@ y_pred.append(response)
 y_true.append(test.iloc[1])
 
 
-mse = mean_squared_error(y_true=y_true, y_pred=y_pred)
+mse = root_mean_squared_error(y_true=y_true, y_pred=y_pred)
 mse
 
 
@@ -205,8 +207,8 @@ def get_response(final_prompt, model, input):
     return response
 
 # get the mean squared error
-def get_mse(y_pred, y_true):
-    mse = mean_squared_error(y_true=y_true, y_pred=y_pred)
+def get_rmse(y_pred, y_true):
+    rmse = root_mean_squared_error(y_true=y_true, y_pred=y_pred)
     return mse
 
 
@@ -256,9 +258,9 @@ for i in range(test.shape[0]):
         problems.append(row_to_add)
 
 
-mse = get_mse(y_pred, y_true) # Calculate the mean squared error
-print(mse)
-run["mse"] = mse
+rmse = get_rmse(y_pred, y_true) # Calculate the mean squared error
+print(rmse) 
+run["rmse"] = rmse
 run.stop() # Stop the run
 
 
@@ -269,5 +271,27 @@ problems_df.to_csv("../data/responses/few_shot.csv", mode='a', index=False, head
 problems
 
 
+"""
+# Results
+"""
+
+# Data from the provided results (from Neptune)
+data = {
+    'Val/MSE': [0.873661, 1.351418, 1.450036, 1.261327, 1.360076],
+    'Test/MSE': [1.394292, 1.211501, 1.154834, 1.010549, 0.716525],
+    'Second_Test/MSE': [1.350694, 1.775061, 1.376452, 1.795675, 1.243888]
+}
+
+# Convert data to DataFrame
+df = pd.DataFrame(data)
+
+# Plotting with seaborn
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=df)
+plt.title('Few-Shot Prompting Method For Travel',fontsize=24)
+plt.ylabel('MSE',fontsize=16)
+plt.xlabel('Dataset',fontsize=16)
+plt.xticks(ticks=range(3), labels=['Validation', 'Test', 'Abortion Post Test'],fontsize=16)
+plt.show()
 
 

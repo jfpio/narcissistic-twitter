@@ -5,6 +5,7 @@
 defaults:
   - _self_
   - data: narcissistic_posts_simple
+  - evaluation: default
   - model: baselines/svr
   - callbacks: default
   - logger: neptune

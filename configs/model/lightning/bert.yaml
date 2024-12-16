@@ -3,8 +3,8 @@ _target_: lib.models.lightning.bert.NarcissisticPostBERTLitModule
 optimizer:
   _target_: torch.optim.Adam
   _partial_: true
-  lr: 0.01
-  weight_decay: 0.0
+  lr: 1e-4
+  weight_decay: 1e-2
 
 scheduler:
   _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
@@ -14,3 +14,6 @@ scheduler:
   patience: 10
 
 hg_bert_model_name: "FacebookAI/xlm-roberta-base"
+dropout_rate: 0.1
+
+evaluation_config: ${evaluation}  # Reference the imported evaluation config

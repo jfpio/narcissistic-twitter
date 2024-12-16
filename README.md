@@ -11,17 +11,20 @@ The repository is inspired by [lightning-hydra-template](https://github.com/ashl
 #### Multirun of baselines
 For example, one can evaluate all baselines with one command line.
 ```sh
-python train.py experiment=baseline model=baselines/decision_tree,baselines/gradient_boosting,baselines/mlp,baselines/random_forest,baselines/svr seed=42,43,44,45,46 -m
+python train.py experiment=base/baseline_tr_adm model=baselines/decision_tree,baselines/gradient_boosting,baselines/mlp,baselines/random_forest,baselines/svr seed=42,43,44,45,46 -m
 ```
 
+```sh
+python train.py experiment=base/baseline_tr_adm,base/baseline_tr_riv,base/baseline_ab_adm,base/baseline_ab_riv,base/baseline_ai_adm,base/baseline_ai_riv model=baselines/decision_tree,baselines/gradient_boosting,baselines/mlp,baselines/random_forest,baselines/svr,baselines/linear_regression seed=42,47,72,43,12 -m
+```
 #### Few shot
 ```sh
-python train.py -m experiment=few_shot_casual_conversation
+python train.py -m experiment=few_shot/casual_conversation
 ```
 #### Bert Optuna
 Searching for best hyperparameters using [Optuna](https://optuna.readthedocs.io/en/stable/).
 ```sh
-python python train_lightning.py experiment=bert hparams_search=bert_optuna
+python train_lightning.py experiment=bert hparams_search=bert_optuna
 ```
 The results are saved in the file example.db
 It can return an error if there are a couple of experiments with the same name/similar parameters. Changing the study_name should resolve the problem. The second option is to change the storage file. 

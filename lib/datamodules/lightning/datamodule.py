@@ -18,6 +18,7 @@ class NarcissisticPostsLightningDataModule(LightningDataModule):
         post_category: str = "post_travel",
         label_category: str = "adm",
         second_post_category: str = "post_abortion",
+        third_post_category: str = "post_ai",
         tokenizer: Any = None,
         max_token_len: int = 512,
         batch_size: int = 64,
@@ -34,6 +35,7 @@ class NarcissisticPostsLightningDataModule(LightningDataModule):
         self.data_val = None
         self.data_test = None
         self.data_test_second_category = None
+        self.data_test_third_category = None
 
     def setup(self, stage: Optional[str] = None) -> None:
         """Load data. Set variables: `self.data_train`, `self.data_val`, `self.data_test`.
@@ -67,18 +69,34 @@ class NarcissisticPostsLightningDataModule(LightningDataModule):
             max_token_len = self.hparams.max_token_len
 
             self.data_train = NarcissisticPostDataset(
-                train_df[self.hparams.post_category], train_df[self.hparams.label_category], tokenizer, max_token_len
+                train_df[self.hparams.post_category],
+                train_df.loc[train_df[self.hparams.post_category].notna(), self.hparams.label_category],
+                tokenizer,
+                max_token_len,
             )
             self.data_val = NarcissisticPostDataset(
-                val_df[self.hparams.post_category], val_df[self.hparams.label_category], tokenizer, max_token_len
+                val_df[self.hparams.post_category].dropna(),
+                val_df.loc[val_df[self.hparams.post_category].notna(), self.hparams.label_category],
+                tokenizer,
+                max_token_len,
             )
             self.data_test = NarcissisticPostDataset(
-                test_df[self.hparams.post_category], test_df[self.hparams.label_category], tokenizer, max_token_len
+                test_df[self.hparams.post_category].dropna(),
+                test_df.loc[test_df[self.hparams.post_category].notna(), self.hparams.label_category],
+                tokenizer,
+                max_token_len,
             )
 
             self.data_test_second_category = NarcissisticPostDataset(
-                test_df[self.hparams.second_post_category],
-                test_df[self.hparams.label_category],
+                test_df[self.hparams.second_post_category].dropna(),
+                test_df.loc[test_df[self.hparams.second_post_category].notna(), self.hparams.label_category],
+                tokenizer,
+                max_token_len,
+            )
+
+            self.data_test_third_category = NarcissisticPostDataset(
+                test_df[self.hparams.third_post_category].dropna(),
+                test_df.loc[test_df[self.hparams.third_post_category].notna(), self.hparams.label_category],
                 tokenizer,
                 max_token_len,
             )
@@ -129,6 +147,19 @@ class NarcissisticPostsLightningDataModule(LightningDataModule):
         """
         return DataLoader(
             dataset=self.data_test_second_category,
+            batch_size=self.batch_size_per_device,
+            num_workers=self.hparams.num_workers,
+            pin_memory=self.hparams.pin_memory,
+            shuffle=False,
+        )
+
+    def test_third_category_dataloader(self) -> DataLoader[Any]:
+        """Create and return the test dataloader for the third category.
+
+        :return: The test dataloader for the third category.
+        """
+        return DataLoader(
+            dataset=self.data_test_third_category,
             batch_size=self.batch_size_per_device,
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,

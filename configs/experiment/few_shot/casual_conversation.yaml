@@ -23,5 +23,5 @@ model:
 
 data:
   post_category: post_travel
-  label_category: riv
+  label_category: adm
   second_post_category: post_abortion

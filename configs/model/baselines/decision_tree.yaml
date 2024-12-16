@@ -1,1 +1,3 @@
 _target_: lib.models.baseline_models.DecisionTreeRegressorModel
+
+criterion: absolute_error

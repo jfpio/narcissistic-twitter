@@ -5,20 +5,21 @@
 
 defaults:
   - override /data: narcissistic_posts_simple
-  - override /model: baselines/decision_tree
+  - override /model: baselines/svr
   - override /callbacks: default
   - override /trainer: default
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
 
+# each experiment can have a list of tags associated with it
 tags: ["baseline", "choosing_best_baseline_on_val"]
 
 seed: 72
 
-
 data:
-  post_category: post_abortion
+  post_category: post_travel
   label_category: adm
-  second_post_category: post_travel
+  second_post_category: post_abortion
+  third_post_category: post_ai 
 
