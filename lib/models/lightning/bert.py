@@ -64,7 +64,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         y = batch["labels"]
         preds = self(x)
 
-        loss = torch.nn.functional.mse_loss(preds.squeeze(), y)
+        loss = torch.nn.functional.mse_loss(preds.view(-1), y)
         return loss, preds, y
 
     def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
@@ -120,7 +120,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
 
         self.log(
             "test/root_mse",
-            root_mean_squared_error(targets.cpu(), preds.squeeze().cpu()),
+            root_mean_squared_error(targets.cpu(), preds.view(-1).cpu()),
             on_step=False,
             on_epoch=True,
             prog_bar=True,
@@ -128,7 +128,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
 
         self.log(
             "test/mae",
-            mean_absolute_error(targets.cpu(), preds.squeeze().cpu()),
+            mean_absolute_error(targets.cpu(), preds.view(-1).cpu()),
             on_step=False,
             on_epoch=True,
             prog_bar=True,
@@ -136,7 +136,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
 
         self.log(
             "test/maxAE",
-            torch.max(torch.abs(targets.cpu() - preds.squeeze().cpu())),
+            torch.max(torch.abs(targets.cpu() - preds.view(-1).cpu())),
             on_step=False,
             on_epoch=True,
             prog_bar=True,
@@ -145,7 +145,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         huber_loss = HuberLoss(delta=self.hparams.evaluation_config.delta_huber)
         self.log(
             "test/HuberLoss",
-            huber_loss(targets.cpu(), preds.squeeze().cpu()),
+            huber_loss(targets.cpu(), preds.view(-1).cpu()),
             on_step=False,
             on_epoch=True,
             prog_bar=True,
@@ -153,7 +153,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
 
         self.log(
             "test/quantile_loss",
-            self.quantile_loss(targets.cpu(), preds.squeeze().cpu(), self.hparams.evaluation_config.quantile).item(),
+            self.quantile_loss(targets.cpu(), preds.view(-1).cpu(), self.hparams.evaluation_config.quantile).item(),
             on_step=False,
             on_epoch=True,
             prog_bar=True,
