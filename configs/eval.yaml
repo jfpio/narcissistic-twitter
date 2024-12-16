@@ -3,6 +3,7 @@
 defaults:
   - _self_
   - data: narcissistic_posts_lightning
+  - evaluation: default
   - model: lightning/bert
   - logger: neptune
   - trainer: default

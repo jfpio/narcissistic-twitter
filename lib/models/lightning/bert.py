@@ -1,6 +1,7 @@
 from typing import Any, Dict, Tuple
 
 from lightning import LightningModule
+from omegaconf import OmegaConf
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 import torch
 from torch.nn import HuberLoss
@@ -15,6 +16,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
         dropout_rate: float,
+        evaluation_config: OmegaConf,
     ) -> None:
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -139,9 +141,8 @@ class NarcissisticPostBERTLitModule(LightningModule):
             on_epoch=True,
             prog_bar=True,
         )
-        # TODO: Move the HuberLoss to init? or is there a better solution?
-        huber_loss = HuberLoss(delta=1.0)  # TODO: make delta a hyperparameter
 
+        huber_loss = HuberLoss(delta=self.hparams.evaluation_config.delta_huber)
         self.log(
             "test/HuberLoss",
             huber_loss(targets.cpu(), preds.squeeze().cpu()),
@@ -152,7 +153,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
 
         self.log(
             "test/quantile_loss",
-            self.quantile_loss(targets.cpu(), preds.squeeze().cpu(), 1.0).item(),  # TODO: implement quantile value
+            self.quantile_loss(targets.cpu(), preds.squeeze().cpu(), self.hparams.evaluation_config.quantile).item(),
             on_step=False,
             on_epoch=True,
             prog_bar=True,
