@@ -112,21 +112,6 @@ def remove_obsolete_observations(data: pd.DataFrame) -> pd.DataFrame:
     indices_to_delete.extend(
         data[data["post_abortion"] == ("This is something I would prefer not to comment on")].index
     )
-
-    indices_to_delete.extend(
-        data[
-            data["post_travel"]
-            == (
-                "Exploring the breathtaking landscapes and vibrant "
-                "culture of [destination] has been an absolute dream! "
-                "From savoring delicious local cuisine to immersing "
-                "in rich history, every moment has been a true adventure. "
-                "Grateful for the chance to expand my horizons."
-                "#TravelDiaries #Wanderl"
-            )
-        ].index
-    )
-
     updated_data = data.drop(indices_to_delete)
     return updated_data
 
