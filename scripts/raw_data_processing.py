@@ -62,6 +62,11 @@ def process_raw_data(file_to_open: Union[str, Path], target_name: Union[str, Pat
     data["post_travel"] = data["post_travel"].str.strip()
     data["post_abortion"] = data["post_abortion"].str.strip()
 
+    if "new" in target_name.stem:
+        data["post_ai"] = data["post_ai"].astype(str)
+        data["post_ai"] = data["post_ai"].str.replace("\\s\\s+", " ", regex=True)
+        data["post_ai"] = data["post_ai"].str.strip()
+
     # Convert age to integer
     data["age"] = data["age"].astype(int)
 
