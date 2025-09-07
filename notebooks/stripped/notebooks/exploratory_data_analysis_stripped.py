@@ -23,6 +23,8 @@ from collections import Counter
 
 from sklearn.feature_extraction.text import CountVectorizer
 
+from wordcloud import WordCloud
+
 
 # downaload the stopwords
 nltk.download('popular')
@@ -68,7 +70,7 @@ Apart from popular social media sites, 27 other sites have been reported. That i
 # plot the box chart of ADM and RIV column
 plt.figure(figsize=(10, 6))
 sns.boxplot(data=data[['adm', 'riv']])
-plt.title('Box plot of Narcissistic Admiration (amd) and Narcissistic Rivalry (riv)')
+# plt.title('Box plot of Narcissistic Admiration (ADM) and Narcissistic Rivalry (RIV)')
 plt.show()
 
 
@@ -268,6 +270,58 @@ for text in data['post_ai_lists']:
     if text is not np.nan:
         corpus_ai += text
 print(f"Abortion total words:\t{len(corpus_ab)} \nTravel total words:\t{len(corpus_tr)} \nAI total words:\t{len(corpus_ai)}")
+
+
+"""
+# Wordcloud
+"""
+
+text = " ".join(corpus_ab)
+
+# Generate the word cloud
+wordcloud = WordCloud(width=800, height=400, 
+                      background_color='white',
+                      colormap='Oranges',
+                      max_words=100).generate(text)
+
+# Display the word cloud
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.title('Abortion posts')
+plt.axis("off")
+plt.show()
+
+
+text = " ".join(corpus_tr)
+
+# Generate the word cloud
+wordcloud = WordCloud(width=800, height=400, 
+                      background_color='white',
+                      colormap='Blues',
+                      max_words=100).generate(text)
+
+# Display the word cloud
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis("off")
+plt.title('Travel posts')
+plt.show()
+
+
+text = " ".join(corpus_ai)
+
+# Generate the word cloud
+wordcloud = WordCloud(width=800, height=400, 
+                      background_color='white',
+                      colormap='Greens',
+                      max_words=100).generate(text)
+
+# Display the word cloud
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis("off")
+plt.title("AI posts")
+plt.show()
 
 
 """
