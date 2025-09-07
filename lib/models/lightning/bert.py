@@ -98,7 +98,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         loss, preds, targets = self.model_step(batch)
 
         # update and log metrics, val loss is mean squared error
-        self.val_loss(preds.squeeze(), targets)
+        self.val_loss(preds.view(-1), targets.view(-1))
         self.log("val/mse", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_validation_epoch_end(self) -> None:
@@ -115,7 +115,7 @@ class NarcissisticPostBERTLitModule(LightningModule):
         loss, preds, targets = self.model_step(batch)
 
         # update and log metrics
-        self.test_loss(preds.squeeze(), targets)
+        self.test_loss(preds.view(-1), targets.view(-1))
         self.log("test/mse", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
 
         self.log(

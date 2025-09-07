@@ -21,7 +21,7 @@ class FewShotLearningModel(AbstractBaseModel):
         self.model_name = model_name
         self.number_of_shots = number_of_shots
         self.model_role = model_role
-        self.chat_model = ChatOpenAI(model=self.model_name, openai_api_key=api_key)
+        self.chat_model = ChatOpenAI(model=self.model_name, openai_api_key=api_key, timeout=15, max_retries=3)
         self.embeddings = OpenAIEmbeddings(model=embedding_model)
 
         self.vectorstore = None
