@@ -31,5 +31,6 @@ model:
 data:
   batch_size: 16
   tokenizer: "FacebookAI/xlm-roberta-base"
+  label_category: riv
 
   # model.hg_bert_model_name: choice(bert-base-uncased, FacebookAI/xlm-roberta-base, FacebookAI/xlm-roberta-large)

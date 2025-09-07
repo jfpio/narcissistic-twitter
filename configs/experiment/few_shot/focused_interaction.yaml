@@ -19,3 +19,8 @@ seed: 12345
 model:
   number_of_shots: 5
   model_role: Imagine you are a psychologist analyzing tweets where a user is responding to compliments about themselves. Determine the level of narcissism shown in these interactions and provide a score from 1 to 6.
+
+
+data:
+  post_category: post_travel
+  label_category: riv

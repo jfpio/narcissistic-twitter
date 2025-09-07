@@ -23,5 +23,6 @@ model:
 
 data:
   post_category: post_travel
-  label_category: adm
+  label_category: riv
   second_post_category: post_abortion
+  third_post_category: post_ai
