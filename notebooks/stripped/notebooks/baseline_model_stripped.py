@@ -18,9 +18,9 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from matplotlib import pyplot as plt
 
 
-post_type = 'post_travel'
-data_path = '../data/split/train.csv'
-test_data_path = '../data/split/test.csv'
+post_type = 'post_abortion'
+data_path = '../data/split/full_train.csv'
+test_data_path = '../data/split/full_test.csv'
 narcism_type = 'adm'
 
 
@@ -72,12 +72,52 @@ def predict(model, X_test):
 def evaluate(y_test, y_pred):
     return root_mean_squared_error(y_test, y_pred)
 
+def huber_loss(y_true, y_pred, delta=1.0):
+    residual = y_true - y_pred
+    is_small_error = np.abs(residual) <= delta
+    squared_loss = 0.5 * residual**2
+    linear_loss = delta * (np.abs(residual) - 0.5 * delta)
+    return np.where(is_small_error, squared_loss, linear_loss).mean()
+
+def quantile_loss(y_true, y_pred, quantile=0.5):
+    residual = y_true - y_pred
+    return np.mean(np.maximum(quantile * residual, (quantile - 1) * residual))
+
+def maxAE(y_true, y_pred):
+    return np.max(np.abs(y_true - y_pred))
+
+def meanAE(y_true, y_pred):
+    return np.mean(np.abs(y_true - y_pred))
+
+
+
+# Statistical baseline
+
+def statistical_baseline(y_train, y_test):
+    mean_value = np.mean(y_train)
+    y_pred = np.full_like(y_test, mean_value)
+    rmse = evaluate(y_test, y_pred)
+    return rmse, y_pred
+
+rmse, y_pred = statistical_baseline(y_train, y_test)
+
+print(f'Statistical baseline RMSE: {rmse:.4f}')
+print(f'huber_loss: {huber_loss(y_test, y_pred):.4f}')
+print(f'quantile_loss: {quantile_loss(y_test, y_pred):.4f}')
+print(f'maxAE: {maxAE(y_test, y_pred):.4f}')
+print(f'meanAE: {meanAE(y_test, y_pred):.4f}')
+
+
 
 lr_model = LinearRegression()
 train_model(lr_model, X_train, y_train)
 y_pred = predict(lr_model, X_test)
 rmse = evaluate(y_test, y_pred)
 print(f"Linear Regression MSE: {rmse}")
+print(f"huber loss: {huber_loss(y_test, y_pred)}")
+print(f"quantile loss: {quantile_loss(y_test, y_pred)}")
+print(f"maxAE: {maxAE(y_test, y_pred)}")
+print(f"meanAE: {meanAE(y_test, y_pred)}")
 
 
 mlpr_model = MLPRegressor(max_iter=800)
@@ -85,6 +125,10 @@ train_model(mlpr_model, X_train, y_train)
 y_pred = predict(mlpr_model, X_test)
 rmse = evaluate(y_test, y_pred)
 print(f"MLP Regressor MSE: {rmse}")
+print(f"huber loss: {huber_loss(y_test, y_pred)}")
+print(f"quantile loss: {quantile_loss(y_test, y_pred)}")
+print(f"maxAE: {maxAE(y_test, y_pred)}")
+print(f"meanAE: {meanAE(y_test, y_pred)}")
 
 
 svr_model = SVR()
@@ -92,7 +136,10 @@ train_model(svr_model, X_train, y_train)
 y_pred = predict(svr_model, X_test)
 rmse = evaluate(y_test, y_pred)
 print(f"SVR MSE: {rmse}")
-print(f"{y_pred=},{y_test=}")
+print(f"huber loss: {huber_loss(y_test, y_pred)}")
+print(f"quantile loss: {quantile_loss(y_test, y_pred)}")
+print(f"maxAE: {maxAE(y_test, y_pred)}")
+print(f"meanAE: {meanAE(y_test, y_pred)}")
 
 
 rfr_model = RandomForestRegressor()
@@ -100,6 +147,10 @@ train_model(rfr_model, X_train, y_train)
 y_pred = predict(rfr_model, X_test)
 rmse = evaluate(y_test, y_pred)
 print(f"Random Forest MSE: {rmse}")
+print(f"huber loss: {huber_loss(y_test, y_pred)}")
+print(f"quantile loss: {quantile_loss(y_test, y_pred)}")
+print(f"maxAE: {maxAE(y_test, y_pred)}")
+print(f"meanAE: {meanAE(y_test, y_pred)}")
 
 
 dtr_model = DecisionTreeRegressor()
@@ -107,6 +158,10 @@ train_model(dtr_model, X_train, y_train)
 y_pred = predict(dtr_model, X_test)
 rmse = evaluate(y_test, y_pred)
 print(f"Decision Tree MSE: {rmse}")
+print(f"huber loss: {huber_loss(y_test, y_pred)}")
+print(f"quantile loss: {quantile_loss(y_test, y_pred)}")
+print(f"maxAE: {maxAE(y_test, y_pred)}")
+print(f"meanAE: {meanAE(y_test, y_pred)}")
 
 
 """
@@ -156,7 +211,7 @@ It is interesting that the model rather correctly predicts the 'ADM' narcissism 
 # Baseline model results
 """
 
-def plot_mse_scatter(models, val_mse, test_mse, other_model,title):
+def plot_mse_scatter(models, val_mse, test_mse, other_model,title, colors, labels, riv):
     # Combine the data into a list of tuples for sorting
     data = list(zip(models, val_mse, test_mse,other_model))
     
@@ -173,21 +228,30 @@ def plot_mse_scatter(models, val_mse, test_mse, other_model,title):
     plt.figure(figsize=(8, 6))
     
     # Plot validation MSE
-    plt.scatter(x, sorted_val_mse, color='b', label='Validation', s=100, marker='o', edgecolor='k')
+    plt.scatter(x, sorted_val_mse, color=colors[0], label=labels[0], s=100, marker='o', ) # edgecolor='k'
     
     # Plot test MSE
-    plt.scatter(x, sorted_test_mse, color='g', label='Test', s=100, marker='s', edgecolor='k')
+    plt.scatter(x, sorted_test_mse, color=colors[1], label=labels[1], s=100, marker='s') # edgecolor='k'
     
     # Plot test MSE
-    plt.scatter(x, other_model_mse, color='y', label='Test second category', s=100, marker='x')
+    plt.scatter(x, other_model_mse, color=colors[2], label=labels[2], s=100, marker='D') # edgecolor='k'
+
+    if riv:
+        # Add horizontal lines for the Huber loss values
+        plt.axhline(y=0.27, color='gray', linestyle='--', label='statistical baseline')
+    else:
+        # Add horizontal lines for the Huber loss values
+        plt.axhline(y=0.49, color='gray', linestyle='--', label='statistical baseline')
 
     # Add labels and title with larger font size
-    plt.xlabel('Models', fontsize=30)
-    plt.ylabel('MSE', fontsize=30)
-    plt.title('Metrics:' + title, fontsize=34)
-    plt.xticks(x, sorted_models, fontsize=24)
-    plt.yticks(fontsize=24)
-    plt.legend(fontsize=24)
+    plt.xlabel('Model', fontsize=20)
+    plt.ylabel('Huber loss', fontsize=20)
+    plt.title(title, fontsize=20)
+    plt.xticks(x, sorted_models, fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.legend(fontsize=12, loc ='upper left')
+
+    plt.ylim(0.25, 0.8)
     
     # Adding grid for better readability
     plt.grid(True, linestyle='--', alpha=0.6)
@@ -198,30 +262,64 @@ def plot_mse_scatter(models, val_mse, test_mse, other_model,title):
     plt.show()
 
 # Data taken from Nepute
-models = ["LR", "SVR", "RF", "GBR", "MLPR", "DFR"]
-val_mse_adm_a = [0.83, 0.67, 0.70, 0.91, 0.88, 1.64]
-test_mse_adm_a = [0.79, 0.65, 0.74, 0.83, 1.04, 1.57]
-test_mse_adm_a_other = [0.75, 0.65, 0.70, 0.71, 1.08, 0.97]
+# It is no longer mse, it is huber loss
+# abortion - red, ai - blue, travel - green
+models = ["LR", "SVR", "RFR", "GBR", "MLPR", "DTR"]
+test_mse_adm_a = [0.517, 0.434, 0.444, 0.462, 0.496, 0.736]
+test_mse_adm_a_2 = [0.629, 0.502, 0.511, 0.524, 0.640, 0.762]
+test_mse_adm_a_3 = [0.593, 0.544, 0.592, 0.619, 0.623, 0.735]
 
-val_mse_riv_a = [0.58, 0.40, 0.51, 0.64, 0.58, 1.25]
-test_mse_riv_a = [0.89, 0.73, 0.79, 0.90, 1.01, 1.12]
-test_mse_riv_a_other = [0.86, 0.70, 0.73, 0.71, 1.29, 0.97]
+test_mse_riv_a = [0.359, 0.274, 0.293, 0.342, 0.349, 0.488]
+test_mse_riv_a_2 = [0.394, 0.283, 0.294, 0.329, 0.368, 0.415]
+test_mse_riv_a_3 = [0.395, 0.290, 0.293, 0.342, 0.388, 0.470]
 
-val_mse_riv_t = [0.62, 0.36, 0.47, 0.80, 0.58, 1.16]
-test_mse_riv_t = [1.06, 0.74, 0.82, 1.06, 1.08, 1.09]
-test_mse_riv_t_other = [0.93, 0.72, 0.84, 1.14, 1.42, 1.64]
+# This first
+test_mse_riv_t = [0.428, 0.268, 0.291, 0.321, 0.353, 0.384]
+test_mse_riv_t_2 = [0.519, 0.294, 0.301, 0.332, 0.433, 0.447]
+test_mse_riv_t_3 = [0.534, 0.278, 0.276, 0.292, 0.355, 0.357]
 
-val_mse_adm_t = [0.72, 0.63, 0.61, 0.88, 0.68, 1.34]
-test_mse_adm_t = [0.77, 0.64, 0.74, 0.82, 0.94, 1.44]
-test_mse_adm_t_other = [0.87, 0.65, 0.66, 0.81, 0.96, 1.40]
+test_mse_adm_t = [0.599, 0.487, 0.517, 0.559, 0.598, 0.767]
+test_mse_adm_t_2 = [0.529, 0.492, 0.511, 0.549, 0.538, 0.714]
+test_mse_adm_t_3 = [0.553, 0.549, 0.608, 0.576, 0.575, 0.770]
 
-titles = ["Abortion Post (Riv)", "Travel Post (Riv)", "Abortion Post (Adm)", "Travel Post (Adm)"]
+test_hub_riv_ai = [0.361, 0.283, 0.296, 0.341, 0.354, 0.480]
+test_hub_riv_ai_2 = [0.322, 0.266, 0.284, 0.307, 0.313, 0.342]
+test_hub_riv_ai_3 = [0.346, 0.274, 0.284, 0.292, 0.334, 0.441]
+
+test_hub_adm_ai = [0.542, 0.451, 0.468, 0.516, 0.531, 0.686]
+test_hub_adm_ai_2 = [0.559, 0.494, 0.505, 0.560, 0.557, 0.997]
+test_hub_adm_ai_3 = [0.493, 0.463, 0.468, 0.477, 0.500, 0.756]
+
+
+colors = ['#51EA30', '#3D36EB', '#EB7431'] #green-ai, blue-travel, orange-abortion
+
+markers = ['s', 'D', 'o']  # square - AI, diamond - abortion, circle - travel
+
+labels_tr = ["test (travel)", "test second category (abortion)", "test third category (ai)"]
+labels_ab = ["test (abortion)", "test second category (travel)", "test third category (ai)"]
+labels_ai = ["test (ai)", "test second category (travel)", "test third category (abortion)"]
+
+
+titles = ["Rivarly prediction trained on abortion posts", "Rivarly prediction trained on travel posts",
+            "Admiration prediction trained on abortion posts", "Admiration prediction trained on travel posts",
+            "Rivarly prediction trained on AI posts", "Admiration prediction trained on AI posts"]
 
 
 # Calling the function
-plot_mse_scatter(models, val_mse_riv_a, test_mse_riv_a, test_mse_riv_a_other,titles[0])
-plot_mse_scatter(models, val_mse_riv_t, test_mse_riv_t, test_mse_riv_t_other,titles[1])
-plot_mse_scatter(models, val_mse_adm_a, test_mse_adm_a, test_mse_adm_a_other,titles[2])
-plot_mse_scatter(models, val_mse_adm_t, test_mse_adm_t, test_mse_adm_t_other,titles[3])
+plot_mse_scatter(models, test_mse_riv_a, test_mse_riv_a_2, test_mse_riv_a_3,titles[0], 
+                 [colors[2], colors[1], colors[0]], labels_ab,True)
+plot_mse_scatter(models, test_mse_riv_t, test_mse_riv_t_2, test_mse_riv_t_3,titles[1],
+                 [colors[1], colors[2], colors[0]], labels_tr, True)
+plot_mse_scatter(models, test_mse_adm_a, test_mse_adm_a_2, test_mse_adm_a_3,titles[2]
+                 ,[colors[2], colors[1], colors[0]], labels_ab, False)
+
+plot_mse_scatter(models, test_mse_adm_t, test_mse_adm_t_2, test_mse_adm_t_3,titles[3],
+                 [colors[1], colors[2], colors[0]], labels_tr, False)
+plot_mse_scatter(models, test_hub_riv_ai, test_hub_riv_ai_2, test_hub_riv_ai_3,titles[4],
+                 [colors[0], colors[1], colors[2]], labels_ai, True)
+plot_mse_scatter(models, test_hub_adm_ai, test_hub_adm_ai_2, test_hub_adm_ai_3,titles[5],
+                 [colors[0], colors[1], colors[2]], labels_ai, False)
+
+
 
 
