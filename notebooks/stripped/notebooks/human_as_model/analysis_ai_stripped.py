@@ -32,11 +32,11 @@ import torch
 from torch.nn import HuberLoss
 
 
-path_to_human_assessed_A = '../data/responses/human_as_model_ai_A.csv'
-path_to_human_assessed_B = '../data/responses/human_as_model_ai_B.csv'
-path_to_human_assessed_C = '../data/responses/human_as_model_ai_B.csv' # TODO: change to C
+path_to_human_assessed_A = '../../data/responses/human_as_model_ai_A.csv'
+path_to_human_assessed_B = '../../data/responses/human_as_model_ai_B.csv'
+path_to_human_assessed_C = '../../data/responses/human_as_model_ai_B.csv' # TODO: change to C
 
-path_to_test = '../data/split/human_test_ai.csv'
+path_to_test = '../../data/split/human_test_ai.csv'
 
 
 # load the human assessed data
